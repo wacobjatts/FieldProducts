@@ -3,160 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOUNDRY // Realtime Bid</title>
+    <title>FOUNDRY // Substrate OS</title>
     <style>
         :root {
-            --bg: #0b0e14;
-            --panel: rgba(20, 24, 33, 0.8);
-            --border: #2d333b;
-            --purple: #bf7af0;
-            --blue: #47a1ff;
-            --text: #adbac7;
-            --white: #ffffff;
+            /* Friendlier Arctic Palette */
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --cyan: #06b6d4; /* Main Action & Status */
+            --text-main: #1e293b;
+            --text-dim: #64748b;
         }
 
-        * { box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
-
-        /* ABLY/CURSOR GLOWS */
-        .glow-bg {
-            position: fixed; top: -10%; right: -10%; width: 50%; height: 50%;
-            background: radial-gradient(circle, rgba(191,122,240,0.1) 0%, rgba(0,0,0,0) 70%);
-            z-index: -1;
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            color: var(--text-main); 
+            padding-bottom: 100px; /* Space for Nav Bar */
+            overflow-x: hidden;
         }
 
-        .app-shell { padding: 24px; max-width: 500px; margin: auto; }
+        /* 01 // THE GLOBAL SHELL */
+        .app-shell { padding: 20px; max-width: 500px; margin: auto; }
 
-        /* HUD HEADER */
-        .os-header { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; font-family: monospace; font-size: 10px; letter-spacing: 1px; }
-        .hud-status { color: var(--purple); text-shadow: 0 0 10px var(--purple); }
+        .os-header { 
+            display: flex; justify-content: space-between; align-items: center;
+            padding-bottom: 20px; border-bottom: 2px solid var(--cyan); margin-bottom: 25px; 
+        }
+        .os-logo { font-weight: 800; font-size: 20px; color: var(--text-main); letter-spacing: -0.5px; }
+        .os-status { font-family: monospace; font-size: 10px; background: rgba(6,182,212,0.1); color: var(--cyan); padding: 4px 8px; border-radius: 4px; }
 
-        /* FLOATING CARDS */
-        .fr-card {
-            background: var(--panel);
+        /* 02 // SUBSTRATE CARDS */
+        .wip-card-container { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0 25px; margin: 0 -20px; padding-left: 20px; scroll-snap-type: x mandatory; }
+        .wip-card-container::-webkit-scrollbar { display: none; } /* Hide Scrollbar */
+
+        .wip-card {
+            flex: 0 0 85%; scroll-snap-align: center;
+            background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(12px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.03);
+            position: relative;
         }
 
-        .card-label { font-size: 10px; color: var(--purple); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; display: block; }
+        .card-label { font-size: 10px; color: var(--cyan); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; display: block; }
+        .card-title { font-size: 20px; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.5px; }
+        .card-meta { font-size: 11px; color: var(--text-dim); margin: 5px 0 15px; font-family: monospace; }
 
-        /* GHOST CURSOR SIMULATION */
-        .cursor-ghost {
-            position: absolute; top: 40px; right: 20px; width: 14px; height: 14px;
-            background: var(--blue); clip-path: polygon(0 0, 0% 100%, 30% 70%, 100% 70%);
-            animation: moveCursor 8s infinite ease-in-out;
+        /* SECTIONS BY MODE */
+        .mode-section { display: none; } /* Default Hide */
+        .mode-section.active { display: block; }
+
+        /* 03 // MODE: BIDDING */
+        .line-item-row { display: grid; grid-template-columns: 1fr 90px; gap: 10px; margin-bottom: 10px; }
+        input, select, textarea { 
+            background: #f1f5f9; border: 1px solid var(--border); color: var(--text-main); 
+            width: 100%; padding: 12px; border-radius: 6px; font-size: 13px; outline: none;
         }
-        @keyframes moveCursor { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-100px, 40px); } }
+        input:focus { border-color: var(--cyan); }
 
-        /* INPUT STYLE */
-        input, select, textarea {
-            background: rgba(0,0,0,0.2); border: 1px solid var(--border);
-            color: var(--white); padding: 12px; width: 100%; border-radius: 8px; margin-top: 8px;
-            font-size: 14px; transition: 0.3s;
+        .bid-total-card { background: var(--text-main); color: #fff; padding: 25px; border-radius: 12px; text-align: center; }
+        .bid-label { color: var(--text-dim); font-size: 10px; margin-bottom: 10px; display: block; text-transform: uppercase; }
+        .bid-value { font-size: 40px; font-weight: 900; letter-spacing: -2px; }
+
+        /* 04 // MODE: SCHEDULE */
+        .milestone-item { position: relative; padding-left: 25px; margin-bottom: 20px; }
+        .milestone-dot { position: absolute; left: 0; top: 0; width: 12px; height: 12px; background: var(--border); border-radius: 50%; }
+        .milestone-item.active .milestone-dot { background: var(--cyan); }
+        .milestone-item.active .milestone-line { position: absolute; left: 5px; top: 12px; width: 2px; height: 100%; background: var(--cyan); }
+        .milestone-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+        .milestone-date { font-size: 11px; color: var(--text-dim); }
+
+        /* 05 // MODE: COMMS */
+        .msg-bubble { background: var(--border); padding: 12px 16px; border-radius: 12px 12px 12px 0; max-width: 80%; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+        .msg-meta { font-size: 9px; color: var(--text-dim); margin-top: 5px; }
+        .msg-mine { background: var(--cyan); color: #fff; align-self: flex-end; border-radius: 12px 12px 0 12px; text-align: right; }
+        .msg-mine .msg-meta { color: rgba(255,255,255,0.7); }
+        .msg-stream { display: flex; flex-direction: column; }
+
+        /* 06 // NAVIGATION TAB BAR */
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: rgba(255,255,255,0.9); border-top: 1px solid var(--border); 
+            display: flex; justify-content: space-around; padding: 15px; 
+            backdrop-filter: blur(10px); z-index: 1000;
         }
-        input:focus { border-color: var(--purple); outline: none; box-shadow: 0 0 15px rgba(191,122,240,0.2); }
+        .nav-btn { background: transparent; border: none; font-size: 10px; font-weight: 700; color: var(--text-dim); cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
+        .nav-btn.active { color: var(--cyan); }
 
-        /* LINE ITEMS */
-        .line-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .item-name { font-weight: 500; color: var(--white); }
-        .item-val { color: var(--blue); font-family: monospace; }
-
-        /* DYNAMIC BID TOTAL */
-        .bid-total-wrap { text-align: center; margin-top: 20px; }
-        .total-val { font-size: 48px; font-weight: 900; color: var(--white); letter-spacing: -2px; margin: 10px 0; }
-
-        /* NAV BAR */
-        .bottom-nav {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            background: rgba(20,24,33,0.9); border: 1px solid var(--border);
-            border-radius: 40px; padding: 15px; display: flex; justify-content: space-around;
-            backdrop-filter: blur(20px);
-        }
-        .nav-item { color: var(--text); font-size: 10px; text-decoration: none; text-align: center; }
-        .nav-item.active { color: var(--purple); }
-
+        /* PRINT LOGIC: FORMAL_BID */
         @media print {
-            body { background: white; color: black; }
-            .no-print, .bottom-nav, .glow-bg { display: none; }
-            .fr-card { border: 1px solid #eee; box-shadow: none; }
-            .total-val { color: black; }
+            body { background: white; padding: 0; color: black; }
+            .no-print { display: none; }
+            .wip-card-container { display: block; margin: 0; padding: 0; overflow-x: visible; }
+            .wip-card { flex: 1 1 100%; border: none; box-shadow: none; padding: 0; }
+            .bid-total-card { background: white; color: black; border-top: 2px solid black; }
+            .bid-value { color: black; }
+            input, select, textarea { background: none; border: none; border-bottom: 1px solid black; }
         }
     </style>
 </head>
 <body>
 
-    <div class="glow-bg"></div>
-
-    <div class="app-shell">
+    <div class="app-shell no-print">
         <header class="os-header">
-            <span>FIELD_OS // PRO_ALPHA</span>
-            <span class="hud-status">● REALTIME_SYNC</span>
+            <span class="os-logo">FOUNDRY // FIELD_OS</span>
+            <span class="os-status">UPLINK_READY</span>
         </header>
 
-        <div class="fr-card" style="position: relative;">
-            <div class="cursor-ghost no-print"></div>
-            <span class="card-label">01 // PROJECT_CORE</span>
-            <input type="text" placeholder="Project Name" value="Luxury Suite Refinement">
-            <input type="text" placeholder="Client Node ID" value="User_9921">
-        </div>
-
-        <div class="fr-card">
-            <span class="card-label">02 // SCOPE_BREAKDOWN</span>
-            <div id="line-items">
-                <div class="line-item">
-                    <span class="item-name">Initial Substrate Prep</span>
-                    <span class="item-val">$1,250.00</span>
-                </div>
-                <div class="line-item">
-                    <span class="item-name">Technical Foundry Install</span>
-                    <span class="item-val">$3,800.00</span>
-                </div>
+        <section class="wip-card-container">
+            <div class="wip-card active" onclick="App.selectJob(this)">
+                <span class="card-label">CURRENT_WIP</span>
+                <h3 class="card-title">Luxury Suite Refinement</h3>
+                <p class="card-meta">2026-03 // NY // SUBSTRATE_CAST</p>
+                <div class="os-status">BIDDING_PHASE</div>
             </div>
-            <button class="no-print" style="width:100%; background:transparent; border:1px dashed var(--border); color:var(--dim); padding:10px; margin-top:15px; border-radius:8px; cursor:pointer;" onclick="App.addItem()">+ ADD_LINE_ITEM</button>
-        </div>
+            <div class="wip-card" onclick="App.selectJob(this)">
+                <span class="card-label">COMPLETED // MAR_15</span>
+                <h3 class="card-title">Kitchen Foundational Install</h3>
+                <p class="card-meta">2026-02 // NJ // CORE_REFINE</p>
+                <div class="os-status" style="background:#eee; color:#444">CLOSED</div>
+            </div>
+        </section>
 
-        <div class="bid-total-wrap">
-            <span class="card-label">TOTAL_VALUATION</span>
-            <div class="total-val" id="total-val">$5,050.00</div>
-            <p style="font-size: 11px; color: var(--dim);">Estimated via Realtime FieldRate Engine</p>
-        </div>
+        <main class="wip-canvas">
 
-        <div style="display:none;" class="print-only">
-            <p>Authorized Signature: _______________________</p>
-        </div>
+            <section id="mode-bid" class="mode-section active">
+                <span class="card-label">BIDDING_SUBSTRATE</span>
+                <div class="surface wip-card" style="margin-bottom:15px;">
+                    <div class="section-title" style="margin-bottom:15px; font-weight:800; font-size:12px;">CLIENT // OWNER</div>
+                    <input type="text" placeholder="Owner Name" value="Jane Cooper">
+                    <input type="text" placeholder="Job Location" value="120 W 42nd St, NY" style="margin-top:8px;">
+                </div>
+
+                <div class="surface wip-card" style="margin-bottom:15px;">
+                    <div class="section-title" style="margin-bottom:15px; font-weight:800; font-size:12px;">LABOR // LINE_ITEMS</div>
+                    <div id="labor-items">
+                        <div class="line-item-row"><input type="text" placeholder="Description" value="Substrate Protection"><input type="number" placeholder="Cost" value="450" class="price-input" oninput="App.calc()"></div>
+                        <div class="line-item-row"><input type="text" placeholder="Description" value="Technical Foundry Install"><input type="number" placeholder="Cost" value="2800" class="price-input" oninput="App.calc()"></div>
+                    </div>
+                </div>
+
+                <div class="bid-total-card">
+                    <span class="bid-label">ESTIMATED_PROPOSAL_TOTAL</span>
+                    <div class="bid-value" id="grand-total">$0.00</div>
+                </div>
+            </section>
+
+            <section id="mode-schedule" class="mode-section">
+                <span class="card-label">MILESTONE_TIMELINE</span>
+                <div class="surface wip-card">
+                    <div class="milestone-item active">
+                        <div class="milestone-dot"></div>
+                        <div class="milestone-line"></div>
+                        <div class="milestone-title">Substrate Cast Approval</div>
+                        <div class="milestone-date">Target: APR_05 // CONFIRMED</div>
+                    </div>
+                    <div class="milestone-item active">
+                        <div class="milestone-dot"></div>
+                        <div class="milestone-line"></div>
+                        <div class="milestone-title">Core Flooring Load-in</div>
+                        <div class="milestone-date">Target: APR_08 // SCHEDULED</div>
+                    </div>
+                    <div class="milestone-item">
+                        <div class="milestone-dot"></div>
+                        <div class="milestone-title">Final Foundry Polish</div>
+                        <div class="milestone-date">Target: APR_12 // pending</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="mode-comms" class="mode-section">
+                <span class="card-label">CONTEXTUAL_MESSAGES</span>
+                <div class="surface wip-card msg-stream">
+                    <div class="msg-bubble">Foundry office flagged a material shortage on the cyan subflooring. Looking into the alternative. <div class="msg-meta">FROM: OFFICE // 13:42</div></div>
+                    <div class="msg-bubble msg-mine">Copy that. Substrate is ready for alternative load-in if approved.<div class="msg-meta">ME // 13:44</div></div>
+                </div>
+                <br>
+                <div class="msg-input surface wip-card" style="padding:10px; display:flex; gap:10px;">
+                    <input type="text" placeholder="Type a contextual pulse...">
+                    <button class="nav-btn active">SEND</button>
+                </div>
+            </section>
+
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn active" onclick="App.switchMode('bid', this)">BID</button>
+            <button class="nav-btn" onclick="App.switchMode('schedule', this)">SCHED</button>
+            <button class="nav-btn" onclick="App.switchMode('comms', this)">COMMS</button>
+            <button class="nav-btn" onclick="window.print()">Print Bid</button>
+        </nav>
     </div>
-
-    <nav class="bottom-nav no-print">
-        <a href="#" class="nav-item active">●<br>HOME</a>
-        <a href="#" class="nav-item">▣<br>INBOX</a>
-        <a href="#" class="nav-item">◮<br>EXPLORE</a>
-        <a href="#" class="nav-item" onclick="window.print()">⎙<br>PDF</a>
-    </nav>
 
     <script>
         const App = {
-            addItem() {
-                const name = prompt("Enter Item Name:");
-                const cost = prompt("Enter Cost:");
-                if(name && cost) {
-                    const container = document.getElementById('line-items');
-                    const div = document.createElement('div');
-                    div.className = 'line-item';
-                    div.innerHTML = `<span class="item-name">${name}</span><span class="item-val">$${parseFloat(cost).toLocaleString()}</span>`;
-                    container.appendChild(div);
-                    this.updateTotal(parseFloat(cost));
-                }
+            switchMode(mode, el) {
+                // Switch Nav Highlight
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                el.classList.add('active');
+                // Switch Content Section
+                document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(`mode-${mode}`).classList.add('active');
             },
-            updateTotal(newVal) {
-                const el = document.getElementById('total-val');
-                let current = parseFloat(el.innerText.replace('$', '').replace(',', ''));
-                el.innerText = `$${(current + newVal).toLocaleString(undefined, {minimumFractionDigits:2})}`;
+
+            selectJob(el) {
+                document.querySelectorAll('.wip-card').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+                // Potential Future: This function would re-load the bid/schedule data for the specific job.
+            },
+
+            calc() {
+                let subtotal = 0;
+                document.querySelectorAll('.price-input').forEach(input => {
+                    subtotal += parseFloat(input.value) || 0;
+                });
+                document.getElementById('grand-total').innerText = `$${subtotal.toLocaleString(undefined, {minimumFractionDigits:2})}`;
             }
         };
+
+        window.onload = () => { App.calc(); };
     </script>
 </body>
 </html>
