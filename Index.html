@@ -1,1 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>FieldOS // Pro Alpha Substrate</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="os-header">
+        <div class="hud-item">
+            <span class="hud-label">Platform</span>
+            <span class="hud-value" id="os-title">FieldOS // Alpha</span>
+        </div>
+        <div class="kernel-stats">
+            <div class="k-stat">
+                <span class="k-label">Stability</span>
+                <span class="k-value" id="val-stability">1.00</span>
+            </div>
+            <div class="k-stat">
+                <span class="k-label">Energy</span>
+                <span class="k-value" id="val-energy">0.00</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="os-viewport">
+        
+        <section id="chamber-home" class="chamber active">
+            <div class="fr-card hero">
+                <header class="card-header">
+                    <span class="card-label">System // Orientation</span>
+                </header>
+                <div class="card-body">
+                    <h1 class="display-text">Vessel Nominal.</h1>
+                    <p class="meta-text">All creation layers synchronized. FieldBuild protocols active.</p>
+                    <button class="btn-primary" onclick="FieldOS.nav('build')">Continue Building</button>
+                </div>
+            </div>
+            <div class="metrics-row">
+                <div class="fr-card">
+                    <header class="card-header"><span class="card-label">Pulses</span></header>
+                    <div class="card-body"><span class="stat-value" id="stat-pulses">0</span></div>
+                </div>
+                <div class="fr-card">
+                    <header class="card-header"><span class="card-label">Uptime</span></header>
+                    <div class="card-body"><span class="stat-value">02:44:02</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chamber-build" class="chamber">
+            <nav class="layer-switch">
+                <button class="switch-item active" data-layer="structure" onclick="FieldOS.setLayer('structure')">Structure</button>
+                <button class="switch-item" data-layer="style" onclick="FieldOS.setLayer('style')">Style</button>
+                <button class="switch-item" data-layer="behavior" onclick="FieldOS.setLayer('behavior')">Behavior</button>
+                <button class="switch-item" data-layer="data" onclick="FieldOS.setLayer('data')">Data</button>
+            </nav>
+            <div class="fr-card console">
+                <header class="card-header">
+                    <span class="card-label" id="active-layer-title">Layer // Structure</span>
+                    <span class="sync-status">Synced</span>
+                </header>
+                <div class="console-workspace">
+                    <textarea id="editor-structure" class="editor-area active" spellcheck="false" placeholder="// Define structure..."></textarea>
+                    <textarea id="editor-style" class="editor-area" spellcheck="false" placeholder="// Define style..."></textarea>
+                    <textarea id="editor-behavior" class="editor-area" spellcheck="false" placeholder="// Define behavior..."></textarea>
+                    <textarea id="editor-data" class="editor-area" spellcheck="false" placeholder="// Define data..."></textarea>
+                </div>
+                <footer class="console-footer">
+                    <span id="char-count">0 Chars // Ln 1, Col 1</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="chamber-preview" class="chamber full-bleed">
+            <iframe id="surface-canvas"></iframe>
+            <div class="safety-bar">
+                <span class="safety-label">Live Surface Manifestation</span>
+                <button class="btn-return" onclick="FieldOS.nav('build')">← Return to Build</button>
+            </div>
+        </section>
+
+        <section id="chamber-history" class="chamber">
+            <div class="fr-card">
+                <header class="card-header"><span class="card-label">Memory Timeline</span></header>
+                <div class="card-body" id="history-stream">
+                    <div class="empty-msg">No Pulses recorded in current substrate.</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="chamber-core" class="chamber">
+            <div class="fr-card">
+                <header class="card-header"><span class="card-label">Entity Calibration</span></header>
+                <div class="card-body">
+                    <div class="scope-toggle">
+                        <button class="toggle-item active">Website</button>
+                        <button class="toggle-item">Application</button>
+                        <button class="toggle-item">Sandbox</button>
+                    </div>
+                </div>
+            </div>
+            <div class="fr-card">
+                <header class="card-header"><span class="card-label">Platform Settings</span></header>
+                <div class="card-body">
+                    <div class="control-row"><span>Auto-Save Pulses</span><div class="fr-toggle active"></div></div>
+                    <div class="control-row"><span>Haptic Feedback</span><div class="fr-toggle"></div></div>
+                </div>
+            </div>
+            <button class="btn-danger" onclick="FieldOS.reset()">Reset Substrate</button>
+        </section>
+
+    </main>
+
+    <nav class="os-nav">
+        <button class="nav-btn active" onclick="FieldOS.nav('home', this)">Home</button>
+        <button class="nav-btn" onclick="FieldOS.nav('build', this)">Build</button>
+        <button class="nav-btn" onclick="FieldOS.nav('preview', this)">Preview</button>
+        <button class="nav-btn" onclick="FieldOS.nav('history', this)">History</button>
+        <button class="nav-btn" onclick="FieldOS.nav('core', this)">Core</button>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>
 
