@@ -1,54 +1,82 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOUNDRY // RapidQuote</title>
+    <title>FOUNDRY // Quote Engine</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="app-shell">
         <header class="header">
-            <span class="brand">FOUNDRY // QUOTE</span>
-            <span class="status">LIVE_SESSION</span>
+            <span class="brand">FOUNDRY // SYSTEM_01</span>
+            <div class="status-group">
+                <span class="status-dot"></span>
+                <span class="status-text">CALC_ACTIVE</span>
+            </div>
         </header>
 
         <main class="workspace">
-            <div class="surface info-card">
-                <input type="text" placeholder="Project Name (e.g. Smith Kitchen)" class="ghost-input">
-                <input type="text" placeholder="Client Email" class="ghost-input">
-            </div>
-
-            <div class="surface scope-card">
-                <span class="s-label">SELECT_SCOPE</span>
-                <div class="scope-grid">
-                    <button class="chip active">Painting</button>
-                    <button class="chip">Flooring</button>
-                    <button class="chip">Electrical</button>
-                    <button class="chip">Drywall</button>
+            <section class="tool-section">
+                <span class="section-label">GLOBAL_PARAMETERS</span>
+                <div class="surface config-grid">
+                    <div class="input-group">
+                        <label>LABOR_RATE / SQFT</label>
+                        <input type="number" id="labor-rate" value="5.50" oninput="Foundry.calc()">
+                    </div>
+                    <div class="input-group">
+                        <label>MATERIAL_MARKUP %</label>
+                        <input type="number" id="markup" value="20" oninput="Foundry.calc()">
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="surface input-card">
-                <span class="s-label">MEASUREMENTS (SQ_FT)</span>
-                <div class="calc-row">
-                    <input type="number" value="150" class="num-input">
-                    <span class="unit">SQFT</span>
+            <section class="tool-section">
+                <span class="section-label">ROOM_MEASUREMENTS</span>
+                <div class="surface capture-card">
+                    <div class="measure-row">
+                        <div class="measure-box">
+                            <label>LENGTH (FT)</label>
+                            <input type="number" id="dim-l" value="12" oninput="Foundry.calc()">
+                        </div>
+                        <div class="measure-symbol">×</div>
+                        <div class="measure-box">
+                            <label>WIDTH (FT)</label>
+                            <input type="number" id="dim-w" value="15" oninput="Foundry.calc()">
+                        </div>
+                    </div>
+                    <div class="area-display">
+                        <span id="total-area">180</span> <small>TOTAL_SQFT</small>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="surface summary-card">
-                <div class="summary-header">
-                    <span class="s-label">ESTIMATED_BID</span>
-                    <span class="bid-total">$1,240.00</span>
+            <section class="tool-section">
+                <span class="section-label">MATERIAL_GRADE</span>
+                <div class="surface material-selector">
+                    <button class="m-chip active" onclick="Foundry.setMaterial(2.50, this)">BASIC ($2.50)</button>
+                    <button class="m-chip" onclick="Foundry.setMaterial(4.75, this)">PRO ($4.75)</button>
+                    <button class="m-chip" onclick="Foundry.setMaterial(8.00, this)">ELITE ($8.00)</button>
                 </div>
-                <p class="summary-meta">Includes 20% labor overhead and premium materials.</p>
-            </div>
+            </section>
 
-            <button class="btn-manifest">MANIFEST & SEND BID</button>
+            <section class="output-section">
+                <div class="surface bid-card">
+                    <div class="bid-header">
+                        <span class="bid-label">PROJECTED_TOTAL</span>
+                        <h2 id="final-bid">$0.00</h2>
+                    </div>
+                    <div class="bid-details">
+                        <div class="detail-row"><span>Labor Cost:</span> <span id="out-labor">$0.00</span></div>
+                        <div class="detail-row"><span>Material Cost:</span> <span id="out-material">$0.00</span></div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="window.print()">GENERATE_PDF_INVOICE</button>
+            </section>
         </main>
     </div>
 
+    <script src="script.js"></script>
 </body>
 </html>
