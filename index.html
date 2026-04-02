@@ -3,229 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOUNDRY // Substrate OS</title>
+    <title>Foundry Field OS</title>
     <style>
         :root {
-            /* Friendlier Arctic Palette */
             --bg: #f8fafc;
             --surface: #ffffff;
             --border: #e2e8f0;
-            --cyan: #06b6d4; /* Main Action & Status */
-            --text-main: #1e293b;
-            --text-dim: #64748b;
+            --primary: #06b6d4;
+            --text: #1e293b;
+            --text-light: #64748b;
         }
 
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 100px; }
         
-        body { 
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--text-main); 
-            padding-bottom: 100px; /* Space for Nav Bar */
-            overflow-x: hidden;
-        }
-
-        /* 01 // THE GLOBAL SHELL */
         .app-shell { padding: 20px; max-width: 500px; margin: auto; }
 
-        .os-header { 
-            display: flex; justify-content: space-between; align-items: center;
-            padding-bottom: 20px; border-bottom: 2px solid var(--cyan); margin-bottom: 25px; 
-        }
-        .os-logo { font-weight: 800; font-size: 20px; color: var(--text-main); letter-spacing: -0.5px; }
-        .os-status { font-family: monospace; font-size: 10px; background: rgba(6,182,212,0.1); color: var(--cyan); padding: 4px 8px; border-radius: 4px; }
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .brand { font-weight: 700; font-size: 18px; color: var(--text); }
+        .sync-indicator { font-size: 11px; color: var(--primary); font-weight: 600; text-transform: uppercase; }
 
-        /* 02 // SUBSTRATE CARDS */
-        .wip-card-container { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0 25px; margin: 0 -20px; padding-left: 20px; scroll-snap-type: x mandatory; }
-        .wip-card-container::-webkit-scrollbar { display: none; } /* Hide Scrollbar */
+        /* Project Cards */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .card-label { font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: block; }
 
-        .wip-card {
-            flex: 0 0 85%; scroll-snap-align: center;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 10px 15px rgba(0,0,0,0.03);
-            position: relative;
-        }
-
-        .card-label { font-size: 10px; color: var(--cyan); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; display: block; }
-        .card-title { font-size: 20px; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.5px; }
-        .card-meta { font-size: 11px; color: var(--text-dim); margin: 5px 0 15px; font-family: monospace; }
-
-        /* SECTIONS BY MODE */
-        .mode-section { display: none; } /* Default Hide */
-        .mode-section.active { display: block; }
-
-        /* 03 // MODE: BIDDING */
-        .line-item-row { display: grid; grid-template-columns: 1fr 90px; gap: 10px; margin-bottom: 10px; }
+        /* Form Elements */
         input, select, textarea { 
-            background: #f1f5f9; border: 1px solid var(--border); color: var(--text-main); 
-            width: 100%; padding: 12px; border-radius: 6px; font-size: 13px; outline: none;
+            width: 100%; padding: 12px; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border); 
+            background: #fdfdfd; font-size: 14px; color: var(--text); outline: none; transition: 0.2s;
         }
-        input:focus { border-color: var(--cyan); }
+        input:focus { border-color: var(--primary); background: #fff; }
 
-        .bid-total-card { background: var(--text-main); color: #fff; padding: 25px; border-radius: 12px; text-align: center; }
-        .bid-label { color: var(--text-dim); font-size: 10px; margin-bottom: 10px; display: block; text-transform: uppercase; }
-        .bid-value { font-size: 40px; font-weight: 900; letter-spacing: -2px; }
+        /* Estimator Tools Grid */
+        .estimator-grid { display: grid; grid-template-columns: 1fr 80px; gap: 10px; margin-bottom: 10px; }
+        .unit-select { width: 80px; background: #f1f5f9; font-weight: 600; }
 
-        /* 04 // MODE: SCHEDULE */
-        .milestone-item { position: relative; padding-left: 25px; margin-bottom: 20px; }
-        .milestone-dot { position: absolute; left: 0; top: 0; width: 12px; height: 12px; background: var(--border); border-radius: 50%; }
-        .milestone-item.active .milestone-dot { background: var(--cyan); }
-        .milestone-item.active .milestone-line { position: absolute; left: 5px; top: 12px; width: 2px; height: 100%; background: var(--cyan); }
-        .milestone-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
-        .milestone-date { font-size: 11px; color: var(--text-dim); }
+        /* Line Items */
+        .item-list { margin-top: 10px; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+        .item-row { display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #f8fafc; }
+        .item-price { font-weight: 700; color: var(--primary); }
 
-        /* 05 // MODE: COMMS */
-        .msg-bubble { background: var(--border); padding: 12px 16px; border-radius: 12px 12px 12px 0; max-width: 80%; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
-        .msg-meta { font-size: 9px; color: var(--text-dim); margin-top: 5px; }
-        .msg-mine { background: var(--cyan); color: #fff; align-self: flex-end; border-radius: 12px 12px 0 12px; text-align: right; }
-        .msg-mine .msg-meta { color: rgba(255,255,255,0.7); }
-        .msg-stream { display: flex; flex-direction: column; }
+        /* Schedule Timeline */
+        .milestone { border-left: 2px solid var(--border); padding-left: 20px; margin-left: 10px; position: relative; padding-bottom: 20px; }
+        .milestone::before { content: ''; position: absolute; left: -7px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--border); border: 2px solid var(--surface); }
+        .milestone.active::before { background: var(--primary); }
+        .milestone-text { font-size: 14px; font-weight: 600; }
+        .milestone-date { font-size: 11px; color: var(--text-light); }
 
-        /* 06 // NAVIGATION TAB BAR */
-        .bottom-nav { 
-            position: fixed; bottom: 0; left: 0; right: 0; 
-            background: rgba(255,255,255,0.9); border-top: 1px solid var(--border); 
-            display: flex; justify-content: space-around; padding: 15px; 
-            backdrop-filter: blur(10px); z-index: 1000;
-        }
-        .nav-btn { background: transparent; border: none; font-size: 10px; font-weight: 700; color: var(--text-dim); cursor: pointer; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
-        .nav-btn.active { color: var(--cyan); }
+        /* Totals */
+        .summary-card { background: var(--text); color: #fff; border: none; text-align: center; }
+        .total-amount { font-size: 36px; font-weight: 800; margin: 10px 0; letter-spacing: -1px; }
 
-        /* PRINT LOGIC: FORMAL_BID */
-        @media print {
-            body { background: white; padding: 0; color: black; }
-            .no-print { display: none; }
-            .wip-card-container { display: block; margin: 0; padding: 0; overflow-x: visible; }
-            .wip-card { flex: 1 1 100%; border: none; box-shadow: none; padding: 0; }
-            .bid-total-card { background: white; color: black; border-top: 2px solid black; }
-            .bid-value { color: black; }
-            input, select, textarea { background: none; border: none; border-bottom: 1px solid black; }
-        }
+        /* Navigation */
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 15px; }
+        .nav-link { background: none; border: none; font-size: 11px; font-weight: 700; color: var(--text-light); cursor: pointer; }
+        .nav-link.active { color: var(--primary); }
+
+        @media print { .no-print { display: none; } body { background: #fff; } .card { box-shadow: none; border: 1px solid #eee; } }
     </style>
 </head>
 <body>
 
-    <div class="app-shell no-print">
-        <header class="os-header">
-            <span class="os-logo">FOUNDRY // FIELD_OS</span>
-            <span class="os-status">UPLINK_READY</span>
+    <div class="app-shell">
+        <header class="header">
+            <span class="brand">Foundry Field OS</span>
+            <span class="sync-indicator">System Ready</span>
         </header>
 
-        <section class="wip-card-container">
-            <div class="wip-card active" onclick="App.selectJob(this)">
-                <span class="card-label">CURRENT_WIP</span>
-                <h3 class="card-title">Luxury Suite Refinement</h3>
-                <p class="card-meta">2026-03 // NY // SUBSTRATE_CAST</p>
-                <div class="os-status">BIDDING_PHASE</div>
+        <main id="view-bid" class="view">
+            <div class="card">
+                <span class="card-label">Project Details</span>
+                <input type="text" placeholder="Project Name">
+                <input type="text" placeholder="Client Name" style="margin-top:10px;">
             </div>
-            <div class="wip-card" onclick="App.selectJob(this)">
-                <span class="card-label">COMPLETED // MAR_15</span>
-                <h3 class="card-title">Kitchen Foundational Install</h3>
-                <p class="card-meta">2026-02 // NJ // CORE_REFINE</p>
-                <div class="os-status" style="background:#eee; color:#444">CLOSED</div>
+
+            <div class="card">
+                <span class="card-label">Estimator Tool</span>
+                <div id="estimator-rows">
+                    <div class="estimator-grid">
+                        <input type="text" placeholder="Description (e.g. Concrete Pour)">
+                        <select class="unit-select">
+                            <option>CY</option>
+                            <option>LF</option>
+                            <option>SQFT</option>
+                            <option>EA</option>
+                            <option>TON</option>
+                        </select>
+                    </div>
+                    <div class="estimator-grid">
+                        <input type="number" placeholder="Quantity">
+                        <input type="number" placeholder="Rate ($)">
+                    </div>
+                </div>
+                <button onclick="addEstimateRow()" style="width:100%; background:none; border:1px dashed var(--border); padding:10px; border-radius:8px; color:var(--text-light); font-size:12px; cursor:pointer;">+ Add Line Item</button>
             </div>
-        </section>
 
-        <main class="wip-canvas">
-
-            <section id="mode-bid" class="mode-section active">
-                <span class="card-label">BIDDING_SUBSTRATE</span>
-                <div class="surface wip-card" style="margin-bottom:15px;">
-                    <div class="section-title" style="margin-bottom:15px; font-weight:800; font-size:12px;">CLIENT // OWNER</div>
-                    <input type="text" placeholder="Owner Name" value="Jane Cooper">
-                    <input type="text" placeholder="Job Location" value="120 W 42nd St, NY" style="margin-top:8px;">
-                </div>
-
-                <div class="surface wip-card" style="margin-bottom:15px;">
-                    <div class="section-title" style="margin-bottom:15px; font-weight:800; font-size:12px;">LABOR // LINE_ITEMS</div>
-                    <div id="labor-items">
-                        <div class="line-item-row"><input type="text" placeholder="Description" value="Substrate Protection"><input type="number" placeholder="Cost" value="450" class="price-input" oninput="App.calc()"></div>
-                        <div class="line-item-row"><input type="text" placeholder="Description" value="Technical Foundry Install"><input type="number" placeholder="Cost" value="2800" class="price-input" oninput="App.calc()"></div>
-                    </div>
-                </div>
-
-                <div class="bid-total-card">
-                    <span class="bid-label">ESTIMATED_PROPOSAL_TOTAL</span>
-                    <div class="bid-value" id="grand-total">$0.00</div>
-                </div>
-            </section>
-
-            <section id="mode-schedule" class="mode-section">
-                <span class="card-label">MILESTONE_TIMELINE</span>
-                <div class="surface wip-card">
-                    <div class="milestone-item active">
-                        <div class="milestone-dot"></div>
-                        <div class="milestone-line"></div>
-                        <div class="milestone-title">Substrate Cast Approval</div>
-                        <div class="milestone-date">Target: APR_05 // CONFIRMED</div>
-                    </div>
-                    <div class="milestone-item active">
-                        <div class="milestone-dot"></div>
-                        <div class="milestone-line"></div>
-                        <div class="milestone-title">Core Flooring Load-in</div>
-                        <div class="milestone-date">Target: APR_08 // SCHEDULED</div>
-                    </div>
-                    <div class="milestone-item">
-                        <div class="milestone-dot"></div>
-                        <div class="milestone-title">Final Foundry Polish</div>
-                        <div class="milestone-date">Target: APR_12 // pending</div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="mode-comms" class="mode-section">
-                <span class="card-label">CONTEXTUAL_MESSAGES</span>
-                <div class="surface wip-card msg-stream">
-                    <div class="msg-bubble">Foundry office flagged a material shortage on the cyan subflooring. Looking into the alternative. <div class="msg-meta">FROM: OFFICE // 13:42</div></div>
-                    <div class="msg-bubble msg-mine">Copy that. Substrate is ready for alternative load-in if approved.<div class="msg-meta">ME // 13:44</div></div>
-                </div>
-                <br>
-                <div class="msg-input surface wip-card" style="padding:10px; display:flex; gap:10px;">
-                    <input type="text" placeholder="Type a contextual pulse...">
-                    <button class="nav-btn active">SEND</button>
-                </div>
-            </section>
-
+            <div class="card summary-card">
+                <span class="card-label" style="color: rgba(255,255,255,0.6)">Estimated Total</span>
+                <div class="total-amount">$0.00</div>
+            </div>
         </main>
 
-        <nav class="bottom-nav">
-            <button class="nav-btn active" onclick="App.switchMode('bid', this)">BID</button>
-            <button class="nav-btn" onclick="App.switchMode('schedule', this)">SCHED</button>
-            <button class="nav-btn" onclick="App.switchMode('comms', this)">COMMS</button>
-            <button class="nav-btn" onclick="window.print()">Print Bid</button>
+        <main id="view-schedule" class="view" style="display:none;">
+            <div class="card">
+                <span class="card-label">Project Timeline</span>
+                <div class="milestone active">
+                    <div class="milestone-text">Site Survey & Preparation</div>
+                    <div class="milestone-date">Scheduled: April 5</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-text">Material Load-in</div>
+                    <div class="milestone-date">Scheduled: April 8</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-text">Foundation Inspection</div>
+                    <div class="milestone-date">Target: April 12</div>
+                </div>
+            </div>
+        </main>
+
+        <main id="view-comms" class="view" style="display:none;">
+            <div class="card">
+                <span class="card-label">Office & Client Comms</span>
+                <div style="background:#f8fafc; padding:12px; border-radius:8px; font-size:13px; margin-bottom:10px;">
+                    <strong style="color:var(--primary)">Office:</strong> Please confirm rebar count before Wednesday delivery.
+                </div>
+                <div style="background:#f8fafc; padding:12px; border-radius:8px; font-size:13px;">
+                    <strong style="color:var(--text)">Me:</strong> Measurements confirmed. Prep is 80% complete.
+                </div>
+                <textarea placeholder="Send message to office..." style="margin-top:15px; height:80px;"></textarea>
+            </div>
+        </main>
+
+        <nav class="nav-bar no-print">
+            <button class="nav-link active" onclick="switchView('bid', this)">Estimator</button>
+            <button class="nav-link" onclick="switchView('schedule', this)">Schedule</button>
+            <button class="nav-link" onclick="switchView('comms', this)">Messages</button>
+            <button class="nav-link" onclick="window.print()">Export Bid</button>
         </nav>
     </div>
 
     <script>
-        const App = {
-            switchMode(mode, el) {
-                // Switch Nav Highlight
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                el.classList.add('active');
-                // Switch Content Section
-                document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
-                document.getElementById(`mode-${mode}`).classList.add('active');
-            },
+        function switchView(viewId, btn) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById('view-' + viewId).style.display = 'block';
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            btn.classList.add('active');
+        }
 
-            selectJob(el) {
-                document.querySelectorAll('.wip-card').forEach(c => c.classList.remove('active'));
-                el.classList.add('active');
-                // Potential Future: This function would re-load the bid/schedule data for the specific job.
-            },
-
-            calc() {
-                let subtotal = 0;
-                document.querySelectorAll('.price-input').forEach(input => {
-                    subtotal += parseFloat(input.value) || 0;
-                });
-                document.getElementById('grand-total').innerText = `$${subtotal.toLocaleString(undefined, {minimumFractionDigits:2})}`;
-            }
-        };
-
-        window.onload = () => { App.calc(); };
+        function addEstimateRow() {
+            const container = document.getElementById('estimator-rows');
+            const newRow = document.createElement('div');
+            newRow.innerHTML = `
+                <div class="estimator-grid" style="margin-top:15px; border-top:1px solid #f1f5f9; padding-top:15px;">
+                    <input type="text" placeholder="Description">
+                    <select class="unit-select"><option>CY</option><option>LF</option><option>SQFT</option><option>EA</option></select>
+                </div>
+                <div class="estimator-grid">
+                    <input type="number" placeholder="Quantity">
+                    <input type="number" placeholder="Rate ($)">
+                </div>
+            `;
+            container.appendChild(newRow);
+        }
     </script>
 </body>
 </html>
