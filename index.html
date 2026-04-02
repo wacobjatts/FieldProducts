@@ -3,159 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOUNDRY // Adaptive Capture</title>
+    <title>FOUNDRY // Realtime Bid</title>
     <style>
         :root {
-            --bg: #050505; --surface: #0f1115; --border: #22252a;
-            --accent: #ffffff; --dim: #666e75; --progress: #00ff88;
+            --bg: #0b0e14;
+            --panel: rgba(20, 24, 33, 0.8);
+            --border: #2d333b;
+            --purple: #bf7af0;
+            --blue: #47a1ff;
+            --text: #adbac7;
+            --white: #ffffff;
         }
-        * { box-sizing: border-box; font-family: ui-monospace, monospace; }
-        body { margin: 0; background: var(--bg); color: #fff; padding-bottom: 120px; }
-        .app-shell { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
 
-        /* HEADER & WIP PROGRESS */
-        .header { display: flex; justify-content: space-between; font-size: 10px; color: var(--dim); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .wip-container { background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 4px; }
-        .wip-meta { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 8px; color: var(--dim); }
-        .wip-bar { height: 4px; background: #1a1c20; border-radius: 2px; overflow: hidden; }
-        .wip-fill { height: 100%; background: var(--progress); width: 0%; transition: 1s ease-in-out; box-shadow: 0 0 15px var(--progress); }
+        * { box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* DYNAMIC LISTS */
-        .surface { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
-        .label { font-size: 9px; color: var(--dim); letter-spacing: 2px; display: block; margin-bottom: 12px; }
-        
-        .line-item-row { display: grid; grid-template-columns: 1fr 80px 40px; gap: 10px; margin-bottom: 10px; align-items: center; }
-        input, select { background: #16181d; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; font-size: 12px; }
-        .btn-remove { color: #ff4d4d; border: none; background: none; font-size: 18px; cursor: pointer; }
+        /* ABLY/CURSOR GLOWS */
+        .glow-bg {
+            position: fixed; top: -10%; right: -10%; width: 50%; height: 50%;
+            background: radial-gradient(circle, rgba(191,122,240,0.1) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+        }
 
-        /* AUTO-SUGGESTIONS CHIPS */
-        .suggestions { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; }
-        .chip { background: #1a1c20; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 10px; color: var(--text-mid); white-space: nowrap; cursor: pointer; }
-        .chip:hover { border-color: var(--accent); color: #fff; }
+        .app-shell { padding: 24px; max-width: 500px; margin: auto; }
 
-        /* PHOTO GRID */
-        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .photo-slot { aspect-ratio: 1; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--dim); border-radius: 4px; }
+        /* HUD HEADER */
+        .os-header { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; font-family: monospace; font-size: 10px; letter-spacing: 1px; }
+        .hud-status { color: var(--purple); text-shadow: 0 0 10px var(--purple); }
 
-        /* BID SUMMARY */
-        .bid-card { background: var(--accent); color: #000; border: none; }
-        .bid-total { font-size: 42px; font-weight: 900; letter-spacing: -3px; margin: 5px 0; }
-        
-        .action-stack { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; z-index: 100; }
-        button { flex: 1; padding: 18px; border-radius: 4px; font-weight: 800; font-size: 11px; cursor: pointer; border: none; }
-        .btn-primary { background: #fff; color: #000; }
-        .btn-secondary { background: transparent; color: #fff; border: 1px solid var(--border); }
+        /* FLOATING CARDS */
+        .fr-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .card-label { font-size: 10px; color: var(--purple); font-weight: 800; text-transform: uppercase; margin-bottom: 15px; display: block; }
+
+        /* GHOST CURSOR SIMULATION */
+        .cursor-ghost {
+            position: absolute; top: 40px; right: 20px; width: 14px; height: 14px;
+            background: var(--blue); clip-path: polygon(0 0, 0% 100%, 30% 70%, 100% 70%);
+            animation: moveCursor 8s infinite ease-in-out;
+        }
+        @keyframes moveCursor { 0%, 100% { transform: translate(0,0); } 50% { transform: translate(-100px, 40px); } }
+
+        /* INPUT STYLE */
+        input, select, textarea {
+            background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+            color: var(--white); padding: 12px; width: 100%; border-radius: 8px; margin-top: 8px;
+            font-size: 14px; transition: 0.3s;
+        }
+        input:focus { border-color: var(--purple); outline: none; box-shadow: 0 0 15px rgba(191,122,240,0.2); }
+
+        /* LINE ITEMS */
+        .line-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .item-name { font-weight: 500; color: var(--white); }
+        .item-val { color: var(--blue); font-family: monospace; }
+
+        /* DYNAMIC BID TOTAL */
+        .bid-total-wrap { text-align: center; margin-top: 20px; }
+        .total-val { font-size: 48px; font-weight: 900; color: var(--white); letter-spacing: -2px; margin: 10px 0; }
+
+        /* NAV BAR */
+        .bottom-nav {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            background: rgba(20,24,33,0.9); border: 1px solid var(--border);
+            border-radius: 40px; padding: 15px; display: flex; justify-content: space-around;
+            backdrop-filter: blur(20px);
+        }
+        .nav-item { color: var(--text); font-size: 10px; text-decoration: none; text-align: center; }
+        .nav-item.active { color: var(--purple); }
+
+        @media print {
+            body { background: white; color: black; }
+            .no-print, .bottom-nav, .glow-bg { display: none; }
+            .fr-card { border: 1px solid #eee; box-shadow: none; }
+            .total-val { color: black; }
+        }
     </style>
 </head>
 <body>
 
+    <div class="glow-bg"></div>
+
     <div class="app-shell">
-        <header class="header">
-            <span>FOUNDRY // DYNAMIC_SUBSTRATE</span>
-            <span id="timestamp">SYNC_READY</span>
+        <header class="os-header">
+            <span>FIELD_OS // PRO_ALPHA</span>
+            <span class="hud-status">● REALTIME_SYNC</span>
         </header>
 
-        <div class="wip-container">
-            <div class="wip-meta">
-                <span>ESTIMATE_ACCURACY_PROJECTION</span>
-                <span id="perc">0%</span>
-            </div>
-            <div class="wip-bar"><div class="wip-fill" id="fill"></div></div>
+        <div class="fr-card" style="position: relative;">
+            <div class="cursor-ghost no-print"></div>
+            <span class="card-label">01 // PROJECT_CORE</span>
+            <input type="text" placeholder="Project Name" value="Luxury Suite Refinement">
+            <input type="text" placeholder="Client Node ID" value="User_9921">
         </div>
 
-        <section class="surface">
-            <span class="label">ADAPTIVE_LINE_ITEMS</span>
-            <div id="item-container">
+        <div class="fr-card">
+            <span class="card-label">02 // SCOPE_BREAKDOWN</span>
+            <div id="line-items">
+                <div class="line-item">
+                    <span class="item-name">Initial Substrate Prep</span>
+                    <span class="item-val">$1,250.00</span>
                 </div>
-            <button class="btn-secondary" style="width:100%; margin-top:10px;" onclick="App.addRow()">+ ADD_MANUAL_ITEM</button>
-        </section>
-
-        <section>
-            <span class="label">SMART_SUGGESTIONS</span>
-            <div class="suggestions">
-                <div class="chip" onclick="App.addRow('Site Protection', 250)">Site Protection</div>
-                <div class="chip" onclick="App.addRow('Demolition', 1200)">Demolition</div>
-                <div class="chip" onclick="App.addRow('Premium Paint', 850)">Premium Paint</div>
-                <div class="chip" onclick="App.addRow('Final Clean', 300)">Final Clean</div>
+                <div class="line-item">
+                    <span class="item-name">Technical Foundry Install</span>
+                    <span class="item-val">$3,800.00</span>
+                </div>
             </div>
-        </section>
+            <button class="no-print" style="width:100%; background:transparent; border:1px dashed var(--border); color:var(--dim); padding:10px; margin-top:15px; border-radius:8px; cursor:pointer;" onclick="App.addItem()">+ ADD_LINE_ITEM</button>
+        </div>
 
-        <section class="surface">
-            <span class="label">ARCHITECTURAL_DOCUMENTATION</span>
-            <div class="photo-grid">
-                <div class="photo-slot">⊕</div>
-                <div class="photo-slot">⊕</div>
-                <div class="photo-slot">⊕</div>
-            </div>
-        </section>
+        <div class="bid-total-wrap">
+            <span class="card-label">TOTAL_VALUATION</span>
+            <div class="total-val" id="total-val">$5,050.00</div>
+            <p style="font-size: 11px; color: var(--dim);">Estimated via Realtime FieldRate Engine</p>
+        </div>
 
-        <section class="surface bid-card">
-            <span class="label" style="color:#555">TOTAL_ESTIMATED_VALUATION</span>
-            <div class="bid-total" id="grand-total">$0.00</div>
-            <div style="font-size:10px; color:#666; display:flex; justify-content:space-between;">
-                <span>AUTO_CALC_TAX (8%)</span>
-                <span id="tax-amount">$0.00</span>
-            </div>
-        </section>
-
-        <div class="action-stack">
-            <button class="btn-secondary" onclick="App.uplink()">SYNC_TO_OFFICE</button>
-            <button class="btn-primary" onclick="window.print()">GENERATE_BID</button>
+        <div style="display:none;" class="print-only">
+            <p>Authorized Signature: _______________________</p>
         </div>
     </div>
 
+    <nav class="bottom-nav no-print">
+        <a href="#" class="nav-item active">●<br>HOME</a>
+        <a href="#" class="nav-item">▣<br>INBOX</a>
+        <a href="#" class="nav-item">◮<br>EXPLORE</a>
+        <a href="#" class="nav-item" onclick="window.print()">⎙<br>PDF</a>
+    </nav>
+
     <script>
         const App = {
-            rows: [],
-            
-            addRow(name = '', price = 0) {
-                const id = Date.now();
-                const container = document.getElementById('item-container');
-                const html = `
-                    <div class="line-item-row" id="row-${id}">
-                        <input type="text" placeholder="Item Name" value="${name}" oninput="App.calc()">
-                        <input type="number" placeholder="Cost" value="${price}" oninput="App.calc()">
-                        <button class="btn-remove" onclick="App.removeRow(${id})">×</button>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
-                this.calc();
+            addItem() {
+                const name = prompt("Enter Item Name:");
+                const cost = prompt("Enter Cost:");
+                if(name && cost) {
+                    const container = document.getElementById('line-items');
+                    const div = document.createElement('div');
+                    div.className = 'line-item';
+                    div.innerHTML = `<span class="item-name">${name}</span><span class="item-val">$${parseFloat(cost).toLocaleString()}</span>`;
+                    container.appendChild(div);
+                    this.updateTotal(parseFloat(cost));
+                }
             },
-
-            removeRow(id) {
-                document.getElementById(`row-${id}`).remove();
-                this.calc();
-            },
-
-            calc() {
-                let subtotal = 0;
-                const rows = document.querySelectorAll('.line-item-row');
-                rows.forEach(row => {
-                    const price = parseFloat(row.querySelectorAll('input')[1].value) || 0;
-                    subtotal += price;
-                });
-
-                const tax = subtotal * 0.08;
-                const total = subtotal + tax;
-
-                document.getElementById('grand-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits:2})}`;
-                document.getElementById('tax-amount').innerText = `$${tax.toLocaleString()}`;
-                
-                // Update Progress based on number of items (simulating "data density")
-                const progress = Math.min(rows.length * 20, 100);
-                document.getElementById('fill').style.width = progress + '%';
-                document.getElementById('perc').innerText = progress + '%';
-            },
-
-            uplink() {
-                alert("SUBSTRATE PULSE DETECTED\nPushing encrypted data to Estimator Node...");
+            updateTotal(newVal) {
+                const el = document.getElementById('total-val');
+                let current = parseFloat(el.innerText.replace('$', '').replace(',', ''));
+                el.innerText = `$${(current + newVal).toLocaleString(undefined, {minimumFractionDigits:2})}`;
             }
-        };
-
-        // Initialize with one empty row
-        window.onload = () => {
-            App.addRow('Initial Inspection', 150);
-            document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
         };
     </script>
 </body>
