@@ -1,41 +1,53 @@
-<!DOCTYPE html>
+l<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOUNDRY // Systems</title>
+    <title>FOUNDRY // RapidQuote</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
+    <div class="app-shell">
         <header class="header">
-            <div class="brand">FOUNDRY // 01</div>
-            <div class="status">SYSTEM_STABLE</div>
+            <span class="brand">FOUNDRY // QUOTE</span>
+            <span class="status">LIVE_SESSION</span>
         </header>
 
-        <main class="hero">
-            <div class="shelf">
-                <span class="meta">CORE_DIRECTIVE</span>
-                <h1 class="headline">FROM INTENT <br>TO DEPLOYMENT <br>IN 24 HOURS.</h1>
-                <p class="description">
-                    We manifest high-performance mobile substrates for teams that move faster than their tools. Industrial-grade code. No friction.
-                </p>
+        <main class="workspace">
+            <div class="surface info-card">
+                <input type="text" placeholder="Project Name (e.g. Smith Kitchen)" class="ghost-input">
+                <input type="text" placeholder="Client Email" class="ghost-input">
             </div>
 
-            <div class="cta-block">
-                <button class="primary-btn" onclick="location.href='mailto:deploy@foundry.systems'">INITIATE_DEPLOYMENT</button>
-                <div class="secondary-grid">
-                    <div class="grid-item">01 // BROWSE_VESSELS</div>
-                    <div class="grid-item">02 // SYSTEM_LOGS</div>
+            <div class="surface scope-card">
+                <span class="s-label">SELECT_SCOPE</span>
+                <div class="scope-grid">
+                    <button class="chip active">Painting</button>
+                    <button class="chip">Flooring</button>
+                    <button class="chip">Electrical</button>
+                    <button class="chip">Drywall</button>
                 </div>
             </div>
-        </main>
 
-        <footer class="footer">
-            <span>© 2026 FOUNDRY ARCHITECTURE</span>
-            <span>NODE_ROOT_ACCESS</span>
-        </footer>
+            <div class="surface input-card">
+                <span class="s-label">MEASUREMENTS (SQ_FT)</span>
+                <div class="calc-row">
+                    <input type="number" value="150" class="num-input">
+                    <span class="unit">SQFT</span>
+                </div>
+            </div>
+
+            <div class="surface summary-card">
+                <div class="summary-header">
+                    <span class="s-label">ESTIMATED_BID</span>
+                    <span class="bid-total">$1,240.00</span>
+                </div>
+                <p class="summary-meta">Includes 20% labor overhead and premium materials.</p>
+            </div>
+
+            <button class="btn-manifest">MANIFEST & SEND BID</button>
+        </main>
     </div>
 
 </body>
