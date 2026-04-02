@@ -1,210 +1,178 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FieldOS // Realtime Substrate</title>
+    <title>FieldOS // Industrial Slate</title>
     <style>
         :root {
-            --bg: #05070a;
-            --panel: rgba(13, 17, 23, 0.7);
-            --border: #2d333b;
-            --cyan: #06b6d4;
-            --purple: #c084fc;
-            --text-high: #ffffff;
-            --text-mid: #adbac7;
-            --text-low: #6a737d;
+            --bg: #28333E;
+            --panel: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --cyan: #4FD1C5; /* Professional Teal */
+            --gold: #F6AD55; /* Alert/Reminder Color */
+            --text-main: #E2E8F0;
+            --text-dim: #94A3B8;
         }
 
-        * { box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
-        
-        body { margin: 0; background: var(--bg); color: var(--text-mid); padding-bottom: 120px; overflow-x: hidden; }
+        * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text-main); padding-bottom: 80px; }
 
-        /* ABLY/CURSOR GLOWS */
-        .glow-bg {
-            position: fixed; top: -10%; right: -10%; width: 50%; height: 50%;
-            background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, rgba(0,0,0,0) 70%);
-            z-index: -1;
+        /* HAMBURGER NAVIGATION */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; background: rgba(0,0,0,0.2); }
+        .menu-icon { font-size: 24px; cursor: pointer; color: var(--cyan); }
+        .job-title { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+
+        .side-menu {
+            position: fixed; top: 0; left: -280px; width: 280px; height: 100%;
+            background: #1A202C; z-index: 2000; transition: 0.3s; padding: 30px 20px;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
+        .side-menu.open { left: 0; }
+        .menu-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 13px; }
+        .menu-item:hover { color: var(--cyan); }
 
-        /* 01 // HUD HEADER */
-        .app-shell { padding: 24px; max-width: 500px; margin: auto; }
-        
-        .header-hud { display: flex; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
-        .hud-logo { font-weight: 900; font-size: 20px; color: var(--text-high); letter-spacing: -1.5px; }
-        .hud-logo span { color: var(--cyan); }
-        .hud-status { font-family: monospace; font-size: 10px; color: var(--cyan); font-weight: 700; text-transform: uppercase; }
-        .hud-dot { display: inline-block; width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 10px var(--cyan); margin-right: 5px; }
+        /* PROGRESS BAR */
+        .progress-shell { padding: 0 20px; margin-top: 20px; }
+        .bar-bg { height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        .bar-fill { height: 100%; background: var(--cyan); width: 65%; box-shadow: 0 0 10px var(--cyan); transition: 0.5s; }
 
-        /* 02 // SUBSTRATE SECTIONS (FLOATING PANELS) */
-        .fr-card {
-            background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-            padding: 20px; margin-bottom: 20px; backdrop-filter: blur(12px);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-            transition: 0.2s ease-out;
+        /* CARDS */
+        .shell { padding: 20px; }
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        .label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px; }
+
+        /* DYNAMIC ESTIMATOR */
+        .est-row { display: grid; grid-template-columns: 1fr 70px 90px; gap: 8px; margin-bottom: 12px; }
+        input { background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 6px; font-size: 13px; }
+        input:focus { border-color: var(--cyan); outline: none; }
+
+        /* REMINDERS */
+        .reminder { display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(246, 173, 85, 0.1); border-left: 3px solid var(--gold); border-radius: 4px; margin-bottom: 10px; font-size: 13px; }
+
+        /* TOTALS */
+        .total-display { text-align: center; padding: 30px 0; }
+        .total-val { font-size: 48px; font-weight: 800; color: var(--cyan); }
+
+        /* PHOTO CAPTURE */
+        .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .photo-box { aspect-ratio: 4/3; border: 2px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; color: var(--text-dim); }
+
+        /* PRINT / PDF OVERRIDE (THE ACCOUNTANT VERSION) */
+        @media print {
+            body { background: white; color: black; padding: 0; }
+            .no-print, .side-menu, .top-nav { display: none !important; }
+            .card { border: none; border-bottom: 1px solid #eee; padding: 10px 0; background: none; }
+            .total-val { color: black; font-size: 32px; }
+            .est-row { grid-template-columns: 3fr 1fr 1.5fr; border-bottom: 0.5px solid #ccc; padding: 5px 0; }
+            input { border: none !important; color: black !important; padding: 0; font-size: 11px; }
+            .label { color: #555; border-bottom: 2px solid #000; padding-bottom: 4px; font-size: 12px; }
+            .pdf-header { display: block !important; border-bottom: 3px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
         }
-        .fr-card:active { transform: translateY(-2px) scale(1.01); }
-
-        .card-label { font-size: 10px; font-weight: 800; color: var(--purple); text-transform: uppercase; margin-bottom: 15px; display: block; }
-        .card-title { font-size: 22px; font-weight: 800; color: var(--text-high); margin: 0 0 10px 0; }
-
-        /* DYNAMIC MODE VIEWS */
-        .fr-canvas { display: none; } /* Default Hide */
-        .fr-canvas.active { display: block; }
-
-        /* 03 // MODE: ESTIMATOR (BID) */
-        .est-grid { display: grid; grid-template-columns: 1fr 80px 40px; gap: 8px; margin-bottom: 8px; align-items: center;}
-        input, select { 
-            background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: #fff; 
-            width: 100%; padding: 12px; border-radius: 6px; font-size: 13px; outline: none; transition: 0.2s;
-        }
-        input:focus { border-color: var(--cyan); box-shadow: 0 0 15px rgba(6,182,212,0.2); }
-        .unit-select { font-family: monospace; font-weight: bold; background: #161a20; appearance: none; cursor: pointer; text-align: center; }
-
-        .bid-total-card { background: var(--cyan); color: #000; padding: 25px; border-radius: 12px; text-align: center; }
-        .bid-label { color: rgba(0,0,0,0.7); font-size: 10px; font-weight: 800; }
-        .bid-value { font-size: 44px; font-weight: 900; letter-spacing: -3px; color: #000; margin-top: 5px;}
-
-        /* 04 // MODE: JOB LOGS & COMMS */
-        .milestone-item { position: relative; padding-left: 20px; margin-bottom: 15px; font-size: 12px; }
-        .milestone-dot { position: absolute; left: 0; top: 0; width: 10px; height: 10px; background: var(--border); border-radius: 50%; }
-        .milestone-item.active .milestone-dot { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
-        
-        .msg-bubble { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 10px; border-radius: 8px 8px 8px 0; max-width: 85%; margin-bottom: 8px; font-size: 13px; }
-        .msg-meta { font-size: 9px; color: var(--text-low); margin-top: 4px; }
-        .msg-input { display: flex; gap: 10px; border: 1px dashed var(--border); border-radius: 12px; padding: 8px; margin-top: 15px; }
-        .photo-btn { background: transparent; border: none; font-size: 18px; color: var(--text-low); cursor: pointer;}
-
-        /* 05 // ACTION ZONE & NAV */
-        .action-zone { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
-        .btn-holo { padding: 18px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; text-align: center; letter-spacing: 1.5px; text-transform: uppercase; border: 2px solid transparent; }
-        .btn-cyan { background: #000; color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 20px rgba(6,182,212,0.15); }
-        .btn-cyan:active { background: var(--cyan); color: #000; transform: scale(0.98); }
-
-        .bottom-nav { 
-            position: fixed; bottom: 15px; left: 15px; right: 15px; 
-            background: rgba(13, 17, 23, 0.9); border: 1px solid var(--border); 
-            border-radius: 40px; padding: 15px; display: flex; justify-content: space-around; 
-            backdrop-filter: blur(20px); z-index: 1000;
-        }
-        .nav-btn { background: transparent; border: none; font-size: 10px; font-weight: 700; color: var(--text-mid); cursor: pointer; text-transform: uppercase; }
-        .nav-btn.active { color: var(--purple); text-shadow: 0 0 10px var(--purple); }
     </style>
 </head>
 <body>
 
-    <div class="glow-bg"></div>
+    <div class="pdf-header" style="display:none; color:black;">
+        <h1 style="margin:0;">FIELD_OS // PROJECT VALUATION REPORT</h1>
+        <p>Accounting Grade Document | Generated: <span id="pdf-date"></span></p>
+    </div>
 
-    <div class="app-shell">
-        <header class="header-hud">
-            <span class="hud-logo">Field<span>OS</span> // 5.0</span>
-            <span class="hud-status"><span class="hud-dot"></span> Realtime_Active</span>
-        </header>
+    <div id="sideMenu" class="side-menu">
+        <div class="menu-icon" onclick="toggleMenu()" style="text-align:right;">×</div>
+        <div class="label">Switch Active Job</div>
+        <div class="menu-item" onclick="toggleMenu()">Unit 402 - Floor Refinement</div>
+        <div class="menu-item" onclick="toggleMenu()">Oak St - Foundation Pour</div>
+        <div class="menu-item" onclick="toggleMenu()">Commercial Node B-12</div>
+    </div>
 
-        <main id="view-bid" class="fr-canvas active">
-            <span class="card-label">01 // PROJECT_SUBSTRATE</span>
-            <div class="fr-card">
-                <input type="text" id="project-name" placeholder="Enter Project Name">
-                <input type="text" id="client-name" placeholder="Client Node ID" style="margin-top:10px;">
-            </div>
+    <nav class="top-nav no-print">
+        <div class="menu-icon" onclick="toggleMenu()">☰</div>
+        <div class="job-title">UNIT 402 // REFINEMENT</div>
+        <div style="width:24px;"></div>
+    </nav>
 
-            <span class="card-label">02 // ADAPTIVE_ESTIMATOR</span>
-            <div id="est-items" class="fr-card">
+    <div class="progress-shell no-print">
+        <div class="label" style="display:flex; justify-content:space-between;">
+            <span>Job Progress</span>
+            <span id="prog-val">65%</span>
+        </div>
+        <div class="bar-bg">
+            <div class="bar-fill" id="bar-fill" style="width: 65%;"></div>
+        </div>
+    </div>
+
+    <div class="shell">
+        <div class="label no-print">Reminders</div>
+        <div class="reminder no-print">
+            <span>⚠️</span> 
+            <span>Confirm moisture levels before 4PM load-in.</span>
+        </div>
+
+        <div class="card">
+            <span class="label">Industry Line Items</span>
+            <div id="estimate-container">
+                <div class="est-row">
+                    <input type="text" placeholder="Description" value="Substrate Protection">
+                    <input type="text" placeholder="Unit" value="SQFT">
+                    <input type="number" placeholder="Cost" value="1250" class="val-input" oninput="calc()">
                 </div>
-            <button class="no-print" style="width:100%; background:transparent; border:1px dashed var(--border); color:var(--text-mid); padding:10px; margin-top:-10px; border-radius:8px; cursor:pointer;" onclick="App.addEstRow()">+ ADD_LINE_ITEM</button>
-            <br><br>
-
-            <div class="bid-total-card">
-                <span class="bid-label">ESTIMATED_PROPOSAL_TOTAL</span>
-                <div class="bid-value" id="grand-total">$0.00</div>
             </div>
-        </main>
+            <button class="no-print" onclick="addRow()" style="width:100%; background:transparent; border:1px dashed var(--border); color:var(--cyan); padding:10px; border-radius:8px; margin-top:10px;">+ Add Item</button>
+        </div>
 
-        <main id="view-schedule" class="fr-canvas">
-            <span class="card-label">01 // JOB_HISTORY_LOG</span>
-            <div class="fr-card">
-                <div class="milestone-item active">
-                    <div class="milestone-dot"></div>
-                    <p style="margin:0; font-weight:700;">Site Inspection Complete</p>
-                    <p style="margin:0; font-size:10px; color:var(--text-low);">03_25_2026 // TIME: 09:15</p>
-                </div>
-                <div class="milestone-item">
-                    <div class="milestone-dot"></div>
-                    <p style="margin:0;">Foundation Inspection Pending</p>
-                    <p style="margin:0; font-size:10px; color:var(--text-low);">04_02_2026 // pending office approve</p>
-                </div>
+        <div class="card no-print">
+            <span class="label">Field Documentation</span>
+            <div class="photo-grid">
+                <div class="photo-box" onclick="alert('Camera Active')">Capture Before</div>
+                <div class="photo-box" onclick="alert('Camera Active')">Capture Progress</div>
             </div>
-        </main>
+        </div>
 
-        <main id="view-comms" class="fr-canvas">
-            <span class="card-label">01 // CONTEXTUAL_PULSES</span>
-            <div class="fr-card">
-                <div class="msg-bubble">Foundry office flagged the 15th as rebar load-in. Please confirm site readiness.<div class="msg-meta">FROM: OFFICE // 11:21</div></div>
-                <div class="msg-bubble">Readiness confirmed.<div class="msg-meta">FROM: FIELD_TECH // 11:23</div></div>
-            </div>
-            <div class="fr-card msg-input no-print">
-                <input type="text" placeholder="Type a message or note...">
-                <button class="photo-btn">⊙</button>
-            </div>
-        </main>
+        <div class="total-display">
+            <span class="label">Total Project Valuation</span>
+            <div class="total-val" id="grand-total">$0.00</div>
+        </div>
 
-        <section class="action-zone no-print">
-            <button class="btn-holo btn-cyan" onclick="App.sendPulse()">SEND_TO_OFFICE_IMMEDIATE</button>
-        </section>
-
-        <nav class="bottom-nav no-print">
-            <button class="nav-btn active" onclick="App.switchMode('bid', this)">BID</button>
-            <button class="nav-btn" onclick="App.switchMode('schedule', this)">LOGS</button>
-            <button class="nav-btn" onclick="App.switchMode('comms', this)">COMMS</button>
-            <button class="nav-btn" onclick="window.print()">Print</button>
-        </nav>
+        <button class="no-print" onclick="window.print()" style="width:100%; background:var(--cyan); color:var(--bg); border:none; padding:20px; border-radius:12px; font-weight:900; font-size:14px;">GENERATE ACCOUNTING PDF</button>
+        
+        <p class="no-print" style="text-align:center; font-size:10px; color:var(--text-dim); margin-top:20px; cursor:pointer;" onclick="alert('Uplink Successful')">SEND TO OFFICE IMMEDIATELY</p>
     </div>
 
     <script>
-        const App = {
-            rows: [],
+        function toggleMenu() {
+            document.getElementById('sideMenu').classList.toggle('open');
+        }
+
+        function addRow() {
+            const container = document.getElementById('estimate-container');
+            const div = document.createElement('div');
+            div.className = 'est-row';
+            div.innerHTML = `
+                <input type="text" placeholder="Description">
+                <input type="text" placeholder="Unit" value="EA">
+                <input type="number" placeholder="Cost" class="val-input" oninput="calc()">
+            `;
+            container.appendChild(div);
+        }
+
+        function calc() {
+            let total = 0;
+            document.querySelectorAll('.val-input').forEach(i => {
+                total += parseFloat(i.value) || 0;
+            });
+            document.getElementById('grand-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits:2})}`;
             
-            switchMode(mode, el) {
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                el.classList.add('active');
-                document.querySelectorAll('.fr-canvas').forEach(c => c.classList.remove('active'));
-                document.getElementById(`view-${mode}`).classList.add('active');
-            },
+            // Sync Progress to number of items as a demo
+            const count = Math.min(document.querySelectorAll('.est-row').length * 20, 100);
+            document.getElementById('bar-fill').style.width = count + '%';
+            document.getElementById('prog-val').innerText = count + '%';
+        }
 
-            addEstRow(name='', cost='', qty='') {
-                const id = Date.now();
-                const container = document.getElementById('est-items');
-                const html = `
-                    <div class="est-row-wrap" id="row-${id}">
-                        <input type="text" placeholder="Description (e.g. Concrete Pour)" value="${name}">
-                        <div class="est-grid">
-                            <input type="number" placeholder="Cost ($)" value="${cost}" class="price-input" oninput="App.calc()">
-                            <select class="unit-select">
-                                <option>CY</option><option>LF</option><option>SQFT</option><option>EA</option>
-                            </select>
-                            <button onclick="document.getElementById('row-${id}').remove(); App.calc();" style="border:none; background:none; color:var(--text-low); font-size:22px; cursor:pointer;">×</button>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
-                this.calc();
-            },
-
-            calc() {
-                let total = 0;
-                document.querySelectorAll('.price-input').forEach(input => {
-                    total += parseFloat(input.value) || 0;
-                });
-                document.getElementById('grand-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits:2})}`;
-            },
-
-            sendPulse() {
-                alert("SUBSTRATE PULSE DETECTED\nPushing encrypted FieldData package to Office Estimator...");
-            }
+        window.onload = () => { 
+            calc(); 
+            document.getElementById('pdf-date').innerText = new Date().toLocaleDateString();
         };
-
-        // Initialize with one empty row
-        window.onload = () => { App.addEstRow(); };
     </script>
 </body>
 </html>
