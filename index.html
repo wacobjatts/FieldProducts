@@ -3,182 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOUNDRY // APEX</title>
+    <title>FOUNDRY // APEX ODYSSEY</title>
     <style>
         :root {
-            --bg: #0a0f18;
-            --card: #161e2e;
-            --border: #2d3748;
-            --mint: #00f2ff; /* High energy Cyan */
+            --bg: #07090e;
+            --surface: #111827;
+            --border: #1f2937;
+            --mint: #00ffcc; /* The "Money" Green */
             --electric: #3b82f6;
-            --text: #f8fafc;
-            --warning: #fbbf24;
+            --alert: #f87171;
+            --text-h: #f3f4f6;
+            --text-l: #9ca3af;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-        body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; overflow-x: hidden; }
+        body { margin: 0; background: var(--bg); color: var(--text-h); padding-bottom: 100px; overflow-x: hidden; }
 
-        /* THE APEX HEADER */
-        .apex-header { background: linear-gradient(90deg, #161e2e, #0a0f18); padding: 25px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 900; font-size: 22px; letter-spacing: -1.5px; background: linear-gradient(to right, var(--mint), var(--electric)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hamburger { font-size: 24px; cursor: pointer; color: var(--mint); }
+        /* NEON GLASS HEADER */
+        .header { 
+            background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(20px);
+            padding: 20px; border-bottom: 1px solid var(--border); 
+            position: sticky; top: 0; z-index: 2000; 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .logo { font-weight: 900; font-size: 20px; letter-spacing: -1px; color: var(--mint); text-shadow: 0 0 15px rgba(0,255,204,0.3); }
+        .weather-hud { font-size: 10px; color: var(--text-l); text-align: right; line-height: 1.2; }
 
-        /* MATERIAL SEARCH (THE SURPRISE) */
-        .search-container { padding: 0 20px; margin-top: -15px; }
-        .search-box { background: var(--card); border: 1px solid var(--mint); border-radius: 50px; padding: 12px 20px; display: flex; align-items: center; box-shadow: 0 0 20px rgba(0,242,255,0.1); }
-        .search-box input { background: transparent; border: none; color: white; width: 100%; outline: none; font-size: 13px; }
-        .search-box span { font-size: 10px; color: var(--mint); font-weight: 800; white-space: nowrap; }
+        /* SMART PROGRESS ENGINE */
+        .dashboard { padding: 20px; }
+        .prog-card { background: var(--surface); border-radius: 16px; padding: 20px; border: 1px solid var(--border); position: relative; overflow: hidden;}
+        .prog-card::after { content: ''; position: absolute; top:0; left:0; width: 4px; height: 100%; background: var(--mint); }
+        .label { font-size: 10px; font-weight: 800; color: var(--text-l); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 8px; }
+        .bar-bg { height: 6px; background: #1f2937; border-radius: 10px; margin: 10px 0; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, var(--electric), var(--mint)); width: 35%; box-shadow: 0 0 15px var(--mint); transition: 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
 
-        /* PROGRESS ENGINE */
-        .progress-card { margin: 20px; background: var(--card); border-radius: 16px; padding: 20px; border-left: 4px solid var(--mint); }
-        .prog-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--mint); font-weight: 800; margin-bottom: 10px; }
-        .prog-bar { height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
-        .prog-fill { height: 100%; background: linear-gradient(90deg, var(--electric), var(--mint)); width: 45%; transition: 1s ease; }
+        /* PROFIT MARGIN RADAR (SURPRISE 1) */
+        .margin-radar { display: flex; gap: 10px; margin-top: 15px; }
+        .stat-box { flex: 1; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
+        .stat-val { font-size: 16px; font-weight: 800; color: var(--mint); display: block; }
+        .stat-lbl { font-size: 9px; color: var(--text-l); }
 
-        /* NAVIGATION TABS */
-        .page-view { display: none; padding: 0 20px; animation: fadeIn 0.3s ease; }
-        .page-view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* VIEW CONTAINER */
+        .view { display: none; animation: slideUp 0.4s ease; }
+        .view.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CARDS */
-        .apex-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 15px; }
-        .label { font-size: 9px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 10px; }
+        /* ESTIMATOR V3 */
+        .est-row { display: grid; grid-template-columns: 1fr 70px 80px; gap: 10px; margin-bottom: 12px; }
+        input, select, textarea { 
+            background: #0b0f1a; border: 1px solid var(--border); color: #fff; 
+            padding: 14px; border-radius: 10px; font-size: 14px; outline: none; 
+        }
+        input:focus { border-color: var(--mint); box-shadow: 0 0 10px rgba(0,255,204,0.1); }
+        .unit-drop { color: var(--electric); font-weight: 800; font-family: monospace; }
 
-        /* CONTACTS LIST */
-        .contact-row { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .contact-avatar { width: 40px; height: 40px; background: var(--electric); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; }
-        .contact-info b { font-size: 14px; display: block; }
-        .contact-info span { font-size: 11px; color: #94a3b8; }
+        /* CONTACT CARDS */
+        .contact-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; border: 1px solid var(--border); }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--electric); display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; }
 
-        /* ESTIMATOR GRID */
-        .est-row { display: grid; grid-template-columns: 1fr 80px 80px; gap: 10px; margin-bottom: 10px; }
-        input, select { background: #0f172a; border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; font-size: 13px; }
-        select { color: var(--mint); font-weight: bold; }
-
-        /* PLAN VIEWER (THE SURPRISE) */
-        .plan-box { background: #000; height: 200px; border-radius: 8px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--electric); }
-        .plan-grid { position: absolute; width: 200%; height: 200%; background-image: radial-gradient(var(--electric) 1px, transparent 1px); background-size: 20px 20px; opacity: 0.2; transform: rotate(15deg); }
+        /* PLANS & SPECS (BLUEPRINT MODE) */
+        .blueprint-container { background: #000; border: 1px solid var(--electric); height: 250px; border-radius: 12px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .blueprint-overlay { position: absolute; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(59,130,246,0.1) 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(59,130,246,0.1) 20px); }
 
         /* FOOTER NAV */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(10, 15, 24, 0.95); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 15px; border-top: 1px solid var(--border); }
-        .nav-btn { background: none; border: none; color: #64748b; font-size: 10px; font-weight: 800; text-transform: uppercase; cursor: pointer; }
-        .nav-btn.active { color: var(--mint); }
+        .nav { position: fixed; bottom: 0; width: 100%; background: rgba(7, 9, 14, 0.9); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 15px 10px 25px; }
+        .nav-item { background: none; border: none; color: var(--text-l); font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .nav-item.active { color: var(--mint); }
+        .nav-icon { font-size: 18px; }
 
-        /* PRINT PDF */
+        /* THE CHANGE ORDER BUTTON (SURPRISE 2) */
+        .co-btn { background: var(--alert); color: #fff; padding: 12px; border-radius: 8px; border: none; font-weight: 900; width: 100%; margin-top: 10px; cursor: pointer; }
+
         @media print {
-            .bottom-nav, .search-container, .apex-header { display: none; }
+            .nav, .header, .co-btn { display: none !important; }
             body { background: white; color: black; }
-            .apex-card { border: 1px solid #ddd; background: white; page-break-inside: avoid; }
-            .prog-bar { border: 1px solid #000; }
+            .view.active { display: block !important; }
+            .prog-card, .est-row { border: 1px solid #eee; background: white; color: black; }
         }
     </style>
 </head>
 <body>
 
-    <header class="apex-header">
-        <div class="logo">FOUNDRY // APEX</div>
-        <div class="hamburger" onclick="alert('Switching Projects...')">☰</div>
+    <header class="header">
+        <div class="logo">ODYSSEY // APEX</div>
+        <div class="weather-hud">
+            72°F // CLEAR<br>
+            <span style="color:var(--mint)">POUR_CONDITIONS: OPTIMAL</span>
+        </div>
     </header>
 
-    <div class="search-container no-print">
-        <div class="search-box">
-            <input type="text" placeholder="Search cheapest material near you..." onchange="App.findMaterial()">
-            <span>GPS_LIVE</span>
+    <div class="dashboard">
+        <div class="prog-card">
+            <span class="label">Project Momentum</span>
+            <div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
+            <div class="margin-radar">
+                <div class="stat-box">
+                    <span class="stat-lbl">EST_PROFIT</span>
+                    <span class="stat-val" id="profit-val">$0.00</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-lbl">CONFIDENCE</span>
+                    <span class="stat-val" style="color:var(--electric)">94%</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="progress-card no-print">
-        <div class="prog-label">
-            <span>PROJECT STATUS // PHASE 2</span>
-            <span id="prog-txt">45%</span>
-        </div>
-        <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
-        <p style="font-size: 10px; color: #94a3b8; margin-top: 10px;">Est. Completion: <b>14 Days</b></p>
-    </div>
-
-    <div id="view-bid" class="page-view active">
-        <span class="label">Dynamic Estimator</span>
-        <div class="apex-card" id="estimator-root">
+    <main id="view-est" class="view active" style="padding: 0 20px;">
+        <span class="label">Smart Line Items</span>
+        <div id="est-list">
             <div class="est-row">
-                <input type="text" placeholder="Line Item" value="Grade A Concrete">
-                <select><option>CY</option><option>LF</option><option>SQFT</option></select>
-                <input type="number" placeholder="Cost" value="1200" class="cost-input" oninput="App.calc()">
+                <input type="text" placeholder="Item Description" value="Foundation Footings">
+                <select class="unit-drop"><option>CY</option><option>LF</option><option>SQFT</option><option>EA</option></select>
+                <input type="number" placeholder="Cost" value="3200" class="val-input" oninput="App.calc()">
             </div>
         </div>
-        <button onclick="App.addRow()" style="width:100%; background:transparent; border:1px dashed var(--mint); color:var(--mint); padding:12px; border-radius:8px; cursor:pointer;">+ ADD LINE ITEM</button>
+        <button onclick="App.addRow()" style="width:100%; background:none; border:1px dashed var(--border); color:var(--text-l); padding:15px; border-radius:10px; cursor:pointer;">+ ADD NEW SCOPE</button>
         
-        <div class="apex-card" style="margin-top:20px; text-align:center; background: linear-gradient(135deg, #161e2e, #0a0f18);">
-            <span class="label">Total Valuation</span>
-            <div id="grand-total" style="font-size: 38px; font-weight: 900; color: var(--mint);">$0.00</div>
-            <button onclick="alert('Uplink Encrypted to Office')" style="margin-top:15px; width:100%; padding:15px; background:var(--mint); border:none; border-radius:8px; font-weight:900; cursor:pointer;">SEND TO OFFICE</button>
+        <div style="margin-top:25px; padding:20px; background:var(--surface); border-radius:16px; text-align:center; border:1px solid var(--mint);">
+            <span class="label">Grand Proposal Total</span>
+            <div id="grand-total" style="font-size: 42px; font-weight: 900; color: #fff; letter-spacing: -2px;">$0.00</div>
+            <button class="co-btn" onclick="alert('Change Order Generated & Sent to Client')">REQUEST CHANGE ORDER</button>
         </div>
-    </div>
+    </main>
 
-    <div id="view-plans" class="page-view">
-        <span class="label">Blueprints & Specifications</span>
-        <div class="plan-box" onclick="alert('Loading CAD Layer...')">
-            <div class="plan-grid"></div>
-            <span style="z-index:1; font-weight:800; color:var(--mint);">[ CLICK TO VIEW PLAN_V4.PDF ]</span>
-        </div>
-        <div class="apex-card" style="margin-top:15px;">
-            <span class="label">Structural Specs</span>
-            <p style="font-size:12px; line-height:1.6;">- Foundation: 4,000 PSI Mix<br>- Rebar: #5 at 12" O.C. Both Ways<br>- Finish: Smooth Steel Trowel</p>
-        </div>
-    </div>
-
-    <div id="view-contacts" class="page-view">
-        <span class="label">Supply & Labor Network</span>
-        <div class="apex-card">
-            <span class="label" style="color:var(--electric)">Distributors</span>
-            <div class="contact-row">
-                <div class="contact-avatar" style="background:var(--mint); color:#000;">LS</div>
-                <div class="contact-info"><b>Lumber Supply Co.</b><span>Sales: (555) 0192</span></div>
-            </div>
-            <span class="label" style="color:var(--warning); margin-top:15px;">Subcontractors</span>
-            <div class="contact-row">
-                <div class="contact-avatar">EP</div>
-                <div class="contact-info"><b>Elite Plumbing</b><span>Lead: Mike Ross</span></div>
-            </div>
-            <span class="label" style="color:var(--mint); margin-top:15px;">Clients</span>
-            <div class="contact-row">
-                <div class="contact-avatar" style="background:#fff; color:#000;">JC</div>
-                <div class="contact-info"><b>Jane Cooper</b><span>Owner // Decision Maker</span></div>
+    <main id="view-plans" class="view" style="padding: 0 20px;">
+        <span class="label">Architectural Substrate</span>
+        <div class="blueprint-container">
+            <div class="blueprint-overlay"></div>
+            <div style="z-index:10; text-align:center;">
+                <span style="font-size:30px;">📄</span><br>
+                <b style="color:var(--electric)">MASTER_PLAN_V7.DWG</b><br>
+                <span style="font-size:10px; color:var(--text-l)">TAP TO INITIALIZE CAD VIEWER</span>
             </div>
         </div>
-    </div>
+        <div class="prog-card" style="margin-top:15px;">
+            <span class="label">Specs // Concrete</span>
+            <p style="font-size:12px; color:var(--text-l)">- 4,000 PSI Mix w/ fiber reinforcement<br>- 6" Slab thickness min.</p>
+        </div>
+    </main>
 
-    <nav class="bottom-nav no-print">
-        <button class="nav-btn active" onclick="App.nav('bid', this)">Estimator</button>
-        <button class="nav-btn" onclick="App.nav('plans', this)">Plans</button>
-        <button class="nav-btn" onclick="App.nav('contacts', this)">Contacts</button>
-        <button class="nav-btn" onclick="window.print()">PDF</button>
+    <main id="view-contacts" class="view" style="padding: 0 20px;">
+        <span class="label">Verified Network</span>
+        <div class="contact-card">
+            <div class="avatar" style="background:var(--mint); color:#000;">JC</div>
+            <div class="contact-info">
+                <b style="color:#fff">Jane Cooper</b>
+                <span style="display:block">Project Owner</span>
+                <span style="color:var(--mint)">ONLINE</span>
+            </div>
+        </div>
+        <div class="contact-card">
+            <div class="avatar">EP</div>
+            <div class="contact-info">
+                <b style="color:#fff">Elite Plumbing</b>
+                <span style="display:block">Subcontractor</span>
+                <span style="color:var(--text-l)">Last seen 2h ago</span>
+            </div>
+        </div>
+    </main>
+
+    <nav class="nav no-print">
+        <button class="nav-item active" onclick="App.nav('est', this)"><span class="nav-icon">📊</span>BID</button>
+        <button class="nav-item" onclick="App.nav('plans', this)"><span class="nav-icon">📐</span>PLANS</button>
+        <button class="nav-item" onclick="App.nav('contacts', this)"><span class="nav-icon">👥</span>TEAM</button>
+        <button class="nav-item" onclick="window.print()"><span class="nav-icon">📄</span>PDF</button>
     </nav>
 
     <script>
         const App = {
             nav(id, btn) {
-                document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
                 document.getElementById('view-' + id).classList.add('active');
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             },
             addRow() {
-                const row = document.createElement('div');
-                row.className = 'est-row';
-                row.innerHTML = `<input type="text" placeholder="Line Item"><select><option>CY</option><option>LF</option><option>SQFT</option></select><input type="number" placeholder="Cost" class="cost-input" oninput="App.calc()">`;
-                document.getElementById('estimator-root').appendChild(row);
+                const div = document.createElement('div');
+                div.className = 'est-row';
+                div.innerHTML = `<input type="text" placeholder="Description"><select class="unit-drop"><option>EA</option><option>LF</option><option>SQFT</option></select><input type="number" placeholder="0" class="val-input" oninput="App.calc()">`;
+                document.getElementById('est-list').appendChild(div);
             },
             calc() {
                 let total = 0;
-                document.querySelectorAll('.cost-input').forEach(i => total += parseFloat(i.value) || 0);
+                document.querySelectorAll('.val-input').forEach(i => total += parseFloat(i.value) || 0);
                 document.getElementById('grand-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits:2})}`;
                 
-                let p = Math.min(document.querySelectorAll('.est-row').length * 15, 100);
-                document.getElementById('prog-fill').style.width = p + '%';
-                document.getElementById('prog-txt').innerText = p + '%';
-            },
-            findMaterial() {
-                alert("FOUNDRY ANALYZING... \n\nCheapest Material Found: \nABC Supply - $12.40/unit \n(3.2 miles away)");
+                // SURPRISE: Margin calculation (assuming 25% margin for demo)
+                let profit = total * 0.25;
+                document.getElementById('profit-val').innerText = `$${profit.toLocaleString()}`;
+
+                // Sync progress bar to data density
+                let p = Math.min(document.querySelectorAll('.est-row').length * 20, 100);
+                document.getElementById('bar-fill').style.width = p + '%';
             }
         };
         window.onload = () => App.calc();
