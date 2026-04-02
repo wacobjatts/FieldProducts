@@ -3,67 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOUNDRY // Project Manifest</title>
-    <link rel="stylesheet" href="style.css">
+    <title>FOUNDRY // Adaptive Capture</title>
+    <style>
+        :root {
+            --bg: #050505; --surface: #0f1115; --border: #22252a;
+            --accent: #ffffff; --dim: #666e75; --progress: #00ff88;
+        }
+        * { box-sizing: border-box; font-family: ui-monospace, monospace; }
+        body { margin: 0; background: var(--bg); color: #fff; padding-bottom: 120px; }
+        .app-shell { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+        /* HEADER & WIP PROGRESS */
+        .header { display: flex; justify-content: space-between; font-size: 10px; color: var(--dim); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .wip-container { background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 4px; }
+        .wip-meta { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 8px; color: var(--dim); }
+        .wip-bar { height: 4px; background: #1a1c20; border-radius: 2px; overflow: hidden; }
+        .wip-fill { height: 100%; background: var(--progress); width: 0%; transition: 1s ease-in-out; box-shadow: 0 0 15px var(--progress); }
+
+        /* DYNAMIC LISTS */
+        .surface { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
+        .label { font-size: 9px; color: var(--dim); letter-spacing: 2px; display: block; margin-bottom: 12px; }
+        
+        .line-item-row { display: grid; grid-template-columns: 1fr 80px 40px; gap: 10px; margin-bottom: 10px; align-items: center; }
+        input, select { background: #16181d; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 4px; font-size: 12px; }
+        .btn-remove { color: #ff4d4d; border: none; background: none; font-size: 18px; cursor: pointer; }
+
+        /* AUTO-SUGGESTIONS CHIPS */
+        .suggestions { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; }
+        .chip { background: #1a1c20; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 10px; color: var(--text-mid); white-space: nowrap; cursor: pointer; }
+        .chip:hover { border-color: var(--accent); color: #fff; }
+
+        /* PHOTO GRID */
+        .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .photo-slot { aspect-ratio: 1; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--dim); border-radius: 4px; }
+
+        /* BID SUMMARY */
+        .bid-card { background: var(--accent); color: #000; border: none; }
+        .bid-total { font-size: 42px; font-weight: 900; letter-spacing: -3px; margin: 5px 0; }
+        
+        .action-stack { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; z-index: 100; }
+        button { flex: 1; padding: 18px; border-radius: 4px; font-weight: 800; font-size: 11px; cursor: pointer; border: none; }
+        .btn-primary { background: #fff; color: #000; }
+        .btn-secondary { background: transparent; color: #fff; border: 1px solid var(--border); }
+    </style>
 </head>
 <body>
 
     <div class="app-shell">
         <header class="header">
-            <span>FOUNDRY // MASTER_MANIFEST</span>
-            <span class="status-tag">UPLINK_READY</span>
+            <span>FOUNDRY // DYNAMIC_SUBSTRATE</span>
+            <span id="timestamp">SYNC_READY</span>
         </header>
 
-        <div class="surface progress-container">
-            <div class="progress-label">
-                <span>SUBSTRATE_COMPLETION</span>
-                <span id="completion-perc">0%</span>
+        <div class="wip-container">
+            <div class="wip-meta">
+                <span>ESTIMATE_ACCURACY_PROJECTION</span>
+                <span id="perc">0%</span>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
-            </div>
+            <div class="wip-bar"><div class="wip-fill" id="fill"></div></div>
         </div>
 
         <section class="surface">
-            <span class="label">PHASE_01 // SCOPE_OF_WORK</span>
-            <select id="scope-select" onchange="Foundry.updateProgress()">
-                <option value="0">Select Scope...</option>
-                <option value="25">Initial Surface Prep</option>
-                <option value="50">Technical Installation</option>
-                <option value="75">Core Refinement</option>
-                <option value="100">Final Manifestation</option>
-            </select>
+            <span class="label">ADAPTIVE_LINE_ITEMS</span>
+            <div id="item-container">
+                </div>
+            <button class="btn-secondary" style="width:100%; margin-top:10px;" onclick="App.addRow()">+ ADD_MANUAL_ITEM</button>
         </section>
 
-        <section class="surface">
-            <span class="label">BREAKDOWN // ALLOCATION</span>
-            <div class="line-item-list" id="line-items">
-                <div class="item"><span>Labor: Site Logistics</span><span>$1,200.00</span></div>
-                <div class="item"><span>Labor: Technical Build</span><span>$2,850.00</span></div>
-                <div class="item"><span>Materials: Premium Substrate</span><span>$950.00</span></div>
+        <section>
+            <span class="label">SMART_SUGGESTIONS</span>
+            <div class="suggestions">
+                <div class="chip" onclick="App.addRow('Site Protection', 250)">Site Protection</div>
+                <div class="chip" onclick="App.addRow('Demolition', 1200)">Demolition</div>
+                <div class="chip" onclick="App.addRow('Premium Paint', 850)">Premium Paint</div>
+                <div class="chip" onclick="App.addRow('Final Clean', 300)">Final Clean</div>
             </div>
         </section>
 
         <section class="surface">
-            <span class="label">SITE_EVIDENCE</span>
-            <div class="photo-box" onclick="document.getElementById('f-upload').click()">
-                <input type="file" id="f-upload" hidden accept="image/*">
-                TAP_TO_CAPTURE_NODE
+            <span class="label">ARCHITECTURAL_DOCUMENTATION</span>
+            <div class="photo-grid">
+                <div class="photo-slot">⊕</div>
+                <div class="photo-slot">⊕</div>
+                <div class="photo-slot">⊕</div>
             </div>
         </section>
 
         <section class="surface bid-card">
-            <span class="label">FINAL_VALUATION</span>
-            <div class="bid-total" id="final-total">$5,000.00</div>
-            <div class="summary-line"><span>Tax/Surcharge (10%)</span><span>$500.00</span></div>
+            <span class="label" style="color:#555">TOTAL_ESTIMATED_VALUATION</span>
+            <div class="bid-total" id="grand-total">$0.00</div>
+            <div style="font-size:10px; color:#666; display:flex; justify-content:space-between;">
+                <span>AUTO_CALC_TAX (8%)</span>
+                <span id="tax-amount">$0.00</span>
+            </div>
         </section>
 
         <div class="action-stack">
-            <button class="btn-secondary" onclick="Foundry.uplink()">UPLINK_OFFICE</button>
-            <button class="btn-primary" onclick="window.print()">CLIENT_PDF</button>
+            <button class="btn-secondary" onclick="App.uplink()">SYNC_TO_OFFICE</button>
+            <button class="btn-primary" onclick="window.print()">GENERATE_BID</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const App = {
+            rows: [],
+            
+            addRow(name = '', price = 0) {
+                const id = Date.now();
+                const container = document.getElementById('item-container');
+                const html = `
+                    <div class="line-item-row" id="row-${id}">
+                        <input type="text" placeholder="Item Name" value="${name}" oninput="App.calc()">
+                        <input type="number" placeholder="Cost" value="${price}" oninput="App.calc()">
+                        <button class="btn-remove" onclick="App.removeRow(${id})">×</button>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+                this.calc();
+            },
+
+            removeRow(id) {
+                document.getElementById(`row-${id}`).remove();
+                this.calc();
+            },
+
+            calc() {
+                let subtotal = 0;
+                const rows = document.querySelectorAll('.line-item-row');
+                rows.forEach(row => {
+                    const price = parseFloat(row.querySelectorAll('input')[1].value) || 0;
+                    subtotal += price;
+                });
+
+                const tax = subtotal * 0.08;
+                const total = subtotal + tax;
+
+                document.getElementById('grand-total').innerText = `$${total.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+                document.getElementById('tax-amount').innerText = `$${tax.toLocaleString()}`;
+                
+                // Update Progress based on number of items (simulating "data density")
+                const progress = Math.min(rows.length * 20, 100);
+                document.getElementById('fill').style.width = progress + '%';
+                document.getElementById('perc').innerText = progress + '%';
+            },
+
+            uplink() {
+                alert("SUBSTRATE PULSE DETECTED\nPushing encrypted data to Estimator Node...");
+            }
+        };
+
+        // Initialize with one empty row
+        window.onload = () => {
+            App.addRow('Initial Inspection', 150);
+            document.getElementById('timestamp').innerText = new Date().toLocaleTimeString();
+        };
+    </script>
 </body>
 </html>
