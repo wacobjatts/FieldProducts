@@ -3,76 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FOUNDRY // Quote Engine</title>
+    <title>FOUNDRY // FieldCapture</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="app-shell">
         <header class="header">
-            <span class="brand">FOUNDRY // SYSTEM_01</span>
-            <div class="status-group">
-                <span class="status-dot"></span>
-                <span class="status-text">CALC_ACTIVE</span>
-            </div>
+            <span class="brand">FOUNDRY // FIELD_SYNC</span>
+            <div class="sync-status"><span class="dot pulse"></span> UPLINK_READY</div>
         </header>
 
         <main class="workspace">
             <section class="tool-section">
-                <span class="section-label">GLOBAL_PARAMETERS</span>
-                <div class="surface config-grid">
-                    <div class="input-group">
-                        <label>LABOR_RATE / SQFT</label>
-                        <input type="number" id="labor-rate" value="5.50" oninput="Foundry.calc()">
-                    </div>
-                    <div class="input-group">
-                        <label>MATERIAL_MARKUP %</label>
-                        <input type="number" id="markup" value="20" oninput="Foundry.calc()">
+                <span class="label">VISUAL_EVIDENCE</span>
+                <div class="surface photo-card" onclick="document.getElementById('photo-input').click()">
+                    <input type="file" id="photo-input" hidden accept="image/*" onchange="Foundry.preview(this)">
+                    <div id="photo-preview" class="photo-placeholder">
+                        <span class="icon">⊞</span>
+                        <p>TAP_TO_CAPTURE_SITE_PHOTO</p>
                     </div>
                 </div>
             </section>
 
             <section class="tool-section">
-                <span class="section-label">ROOM_MEASUREMENTS</span>
-                <div class="surface capture-card">
-                    <div class="measure-row">
-                        <div class="measure-box">
-                            <label>LENGTH (FT)</label>
-                            <input type="number" id="dim-l" value="12" oninput="Foundry.calc()">
+                <span class="label">SUBSTRATE_DATA</span>
+                <div class="surface card-dark">
+                    <div class="measure-grid">
+                        <div class="m-box">
+                            <label>SQ_FT</label>
+                            <input type="number" id="dim-sqft" value="250" oninput="Foundry.calc()">
                         </div>
-                        <div class="measure-symbol">×</div>
-                        <div class="measure-box">
-                            <label>WIDTH (FT)</label>
-                            <input type="number" id="dim-w" value="15" oninput="Foundry.calc()">
+                        <div class="m-box">
+                            <label>DIFFICULTY_MLT</label>
+                            <input type="number" id="dim-diff" value="1.0" step="0.1" oninput="Foundry.calc()">
                         </div>
-                    </div>
-                    <div class="area-display">
-                        <span id="total-area">180</span> <small>TOTAL_SQFT</small>
                     </div>
                 </div>
             </section>
 
             <section class="tool-section">
-                <span class="section-label">MATERIAL_GRADE</span>
-                <div class="surface material-selector">
-                    <button class="m-chip active" onclick="Foundry.setMaterial(2.50, this)">BASIC ($2.50)</button>
-                    <button class="m-chip" onclick="Foundry.setMaterial(4.75, this)">PRO ($4.75)</button>
-                    <button class="m-chip" onclick="Foundry.setMaterial(8.00, this)">ELITE ($8.00)</button>
+                <span class="label">ESTIMATOR_NOTES</span>
+                <div class="surface card-dark">
+                    <textarea id="field-notes" placeholder="e.g. Subflooring damage detected in NW corner..."></textarea>
                 </div>
             </section>
 
             <section class="output-section">
                 <div class="surface bid-card">
-                    <div class="bid-header">
-                        <span class="bid-label">PROJECTED_TOTAL</span>
+                    <div class="bid-main">
+                        <span class="label">PROJECTED_REVENUE</span>
                         <h2 id="final-bid">$0.00</h2>
                     </div>
-                    <div class="bid-details">
-                        <div class="detail-row"><span>Labor Cost:</span> <span id="out-labor">$0.00</span></div>
-                        <div class="detail-row"><span>Material Cost:</span> <span id="out-material">$0.00</span></div>
+                    <div class="bid-breakdown">
+                        <div class="row"><span>Labor</span><span id="out-labor">$0.00</span></div>
+                        <div class="row"><span>Materials</span><span id="out-mat">$0.00</span></div>
                     </div>
                 </div>
-                <button class="btn-primary" onclick="window.print()">GENERATE_PDF_INVOICE</button>
+
+                <div class="action-stack">
+                    <button class="btn-secondary" onclick="Foundry.sendToOffice()">SEND_TO_OFFICE</button>
+                    <button class="btn-primary" onclick="Foundry.clientApprove()">CLIENT_APPROVAL</button>
+                </div>
             </section>
         </main>
     </div>
