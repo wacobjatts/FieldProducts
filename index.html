@@ -4,117 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>FOUNDRY // Project Manifest</title>
-    <style>
-        :root {
-            --bg: #050505;
-            --surface: #0f1115;
-            --border: #22252a;
-            --accent: #ffffff;
-            --dim: #666e75;
-            --progress: #00ff88;
-        }
-
-        * { box-sizing: border-box; font-family: ui-monospace, SFMono-Regular, monospace; }
-        body { margin: 0; background: var(--bg); color: #fff; padding-bottom: 100px; }
-        .app-shell { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-
-        /* HEADER & PROGRESS */
-        .header { display: flex; justify-content: space-between; font-size: 10px; color: var(--dim); border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-        .progress-container { background: var(--surface); border: 1px solid var(--border); padding: 16px; border-radius: 4px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 8px; color: var(--dim); }
-        .progress-bar { height: 4px; background: #1a1c20; border-radius: 2px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--progress); width: 65%; box-shadow: 0 0 10px var(--progress); }
-
-        /* SURFACES */
-        .surface { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px; }
-        .label { font-size: 9px; color: var(--dim); letter-spacing: 2px; display: block; margin-bottom: 12px; }
-
-        /* INPUTS & MENUS */
-        select, input, textarea { 
-            background: #16181d; border: 1px solid var(--border); color: #fff; 
-            width: 100%; padding: 12px; border-radius: 4px; font-size: 13px; outline: none;
-        }
-        select { appearance: none; cursor: pointer; }
-
-        /* LINE ITEMS */
-        .line-item-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-        .item { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 0; border-bottom: 1px solid #1a1c20; }
-        .item span:last-child { color: var(--accent); font-weight: bold; }
-
-        /* PHOTO SLOT */
-        .photo-box { border: 1px dashed var(--border); height: 100px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--dim); cursor: pointer; }
-
-        /* FINAL BID CARD */
-        .bid-card { background: var(--accent); color: #000; border: none; }
-        .bid-card .label { color: #555; }
-        .bid-total { font-size: 38px; font-weight: 900; letter-spacing: -2px; margin: 8px 0; }
-        
-        /* ACTIONS */
-        .action-stack { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg); padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
-        button { flex: 1; padding: 18px; border-radius: 4px; font-weight: 800; font-size: 11px; cursor: pointer; border: none; letter-spacing: 1px; }
-        .btn-primary { background: #fff; color: #000; }
-        .btn-secondary { background: transparent; color: #fff; border: 1px solid var(--border); }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="app-shell">
         <header class="header">
             <span>FOUNDRY // MASTER_MANIFEST</span>
-            <span>v4.0_STABLE</span>
+            <span class="status-tag">UPLINK_READY</span>
         </header>
 
-        <div class="progress-container">
+        <div class="surface progress-container">
             <div class="progress-label">
                 <span>SUBSTRATE_COMPLETION</span>
-                <span>65%</span>
+                <span id="completion-perc">0%</span>
             </div>
             <div class="progress-bar">
-                <div class="progress-fill"></div>
+                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
             </div>
         </div>
 
         <section class="surface">
-            <span class="label">PHASE_O1 // SCOPE_OF_WORK</span>
-            <select id="scope-select">
-                <option>Full Interior Remodel</option>
-                <option>Kitchen Manifestation</option>
-                <option>Surface Refinement (Paint)</option>
-                <option>Foundational Electrical</option>
+            <span class="label">PHASE_01 // SCOPE_OF_WORK</span>
+            <select id="scope-select" onchange="Foundry.updateProgress()">
+                <option value="0">Select Scope...</option>
+                <option value="25">Initial Surface Prep</option>
+                <option value="50">Technical Installation</option>
+                <option value="75">Core Refinement</option>
+                <option value="100">Final Manifestation</option>
             </select>
         </section>
 
         <section class="surface">
-            <span class="label">BREAKDOWN // LABOR_ALLOCATION</span>
-            <div class="line-item-list">
-                <div class="item"><span>Site Prep & Protection</span><span>$450.00</span></div>
-                <div class="item"><span>Surface Demolition</span><span>$1,200.00</span></div>
-                <div class="item"><span>Technical Installation</span><span>$2,850.00</span></div>
-                <div class="item"><span>Foundry Detail Finish</span><span>$600.00</span></div>
+            <span class="label">BREAKDOWN // ALLOCATION</span>
+            <div class="line-item-list" id="line-items">
+                <div class="item"><span>Labor: Site Logistics</span><span>$1,200.00</span></div>
+                <div class="item"><span>Labor: Technical Build</span><span>$2,850.00</span></div>
+                <div class="item"><span>Materials: Premium Substrate</span><span>$950.00</span></div>
             </div>
         </section>
 
         <section class="surface">
             <span class="label">SITE_EVIDENCE</span>
-            <div class="photo-box" onclick="alert('Camera Substrate Active')">
+            <div class="photo-box" onclick="document.getElementById('f-upload').click()">
+                <input type="file" id="f-upload" hidden accept="image/*">
                 TAP_TO_CAPTURE_NODE
             </div>
-            <br>
-            <span class="label">FIELD_NOTES</span>
-            <textarea placeholder="Input architectural observations..."></textarea>
         </section>
 
         <section class="surface bid-card">
             <span class="label">FINAL_VALUATION</span>
-            <div class="bid-total">$5,100.00</div>
-            <div class="item" style="border-color:#ccc"><span style="color:#555">Material Surcharge (20%)</span><span style="color:#000">$1,020.00</span></div>
+            <div class="bid-total" id="final-total">$5,000.00</div>
+            <div class="summary-line"><span>Tax/Surcharge (10%)</span><span>$500.00</span></div>
         </section>
 
         <div class="action-stack">
-            <button class="btn-secondary" onclick="alert('Uplinking to Office...')">UPLINK_OFFICE</button>
+            <button class="btn-secondary" onclick="Foundry.uplink()">UPLINK_OFFICE</button>
             <button class="btn-primary" onclick="window.print()">CLIENT_PDF</button>
         </div>
     </div>
 
+    <script src="script.js"></script>
 </body>
 </html>
